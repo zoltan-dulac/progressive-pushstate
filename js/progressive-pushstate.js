@@ -5,7 +5,7 @@ var pp = new function () {
 	me.popstateEvent = function (e) {};
 	
 	
-	me.init = function (popstateEvent) {
+	me.init = function (popstateEvent, options) {
 		me.links = document.getElementsByClassName('pp-link');
 		me.popstateEvent = popstateEvent;
 		
@@ -17,6 +17,17 @@ var pp = new function () {
 		}
 		
 		window.addEventListener('popstate', me.popstateEvent);
+		
+		if (options.doPopstateOnload) {
+			var splitLocation = location.href.split('?');
+			
+			if (splitLocation.length === 2) {
+				var params = queryStringToObject(splitLocation[1]);
+				me.popstateEvent({
+					state: params
+				});
+			}
+		}
 	};
 	
 	function linkClickEvent(e) {
@@ -38,7 +49,7 @@ var pp = new function () {
 	
 	function getBaseUrl() {
 		var loc = window.location;
-		return loc.protocol + "//" + loc.host + loc.pathname + '?';
+		return loc.protocol + "//" + loc.host + loc.pathname;
 	};
 	
 	function queryStringToObject(qs) {
