@@ -1,3 +1,13 @@
+/*********************************************************
+ * Progressive Popstate - a library to facilitate
+ * progressively enhanced popstate enabled applications
+ * with a server-side fallback.
+ * 
+ * by Zoltan Hawryluk (zoltan.dulac@gmail.com)
+ * MIT License.
+ ********************************************************/
+
+
 var pp = new function () {
 	var me = this;
 	
