@@ -1,6 +1,6 @@
 /*********************************************************
- * Progressive Popstate - a library to facilitate
- * progressively enhanced popstate enabled applications
+ * Progressive Pushstate - a library to facilitate
+ * progressively enhanced pushstate/popstate enabled applications
  * with a server-side fallback.
  * 
  * by Zoltan Hawryluk (zoltan.dulac@gmail.com)

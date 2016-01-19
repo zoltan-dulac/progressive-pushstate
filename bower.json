@@ -1,0 +1,26 @@
+{
+  "name": "progressive-pushstate",
+  "version": "0.5.0",
+  "homepage": "https://github.com/zoltan-dulac/progressive-pushstate",
+  "authors": [
+    "Zoltan Hawryluk <zoltan.dulac@gmail.com>"
+  ],
+  "description": "A library to facilitate progressively enhanced pushstate/popstate enabled applications with a server-side fallback.",
+  "main": "js/progressive-pushstate.js",
+  "keywords": [
+    "pushstate",
+    "popstate",
+    "progressive-enhancement",
+    "javascript",
+    "history",
+    "replacestate"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
