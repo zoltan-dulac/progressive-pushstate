@@ -2,6 +2,7 @@ var pp = new function () {
 	var me = this;
 	
 	me.links = [];
+	me.lastState = {};
 	me.popstateEvent = function (e) {};
 	
 	
@@ -16,7 +17,16 @@ var pp = new function () {
 			me.links[i].addEventListener('click', linkClickEvent);
 		}
 		
-		window.addEventListener('popstate', me.popstateEvent);
+		window.addEventListener('popstate', internalPopstateEvent);
+		
+		if (options.pushScrollState) {
+			// We make sure we throttle scroll and resize because
+			// browsers fire these events like mad and slow the browser
+			// down.
+			me.onScrollDebounced = debounce(scrollEvent, options.debounceTime || 50);
+			window.addEventListener('scroll', me.onScrollDebounced);
+			window.addEventListener('resize', me.onScrollDebounced);
+		}
 		
 		if (options.doPopstateOnload) {
 			var splitLocation = location.href.split('?');
@@ -29,6 +39,49 @@ var pp = new function () {
 			}
 		}
 	};
+	
+	/* Stolen from https://github.com/rodneyrehm/viewport-units-buggyfill/blob/master/viewport-units-buggyfill.js */
+	function debounce(func, wait) {
+		var timeout;
+		return function() {
+			var context = this;
+			var args = arguments;
+			var callback = function() {
+				func.apply(context, args);
+			};
+	
+			clearTimeout(timeout);
+			timeout = setTimeout(callback, wait);
+		};
+	}
+	
+	
+	/*
+	 * getScrollLeft/Top() from http://stackoverflow.com/questions/11193453/find-the-vertical-position-of-scrollbar-without-jquery
+	 */
+	function getScrollLeft() {
+		return (window.pageXOffset !== undefined) ? window.pageXOffset : (document.documentElement || document.body.parentNode || document.body).scrollLeft;
+	}
+	
+	function getScrollTop() {
+		return (window.pageYOffset !== undefined) ? window.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
+	}
+	
+	function scrollEvent(e) {
+		if (window.history.replaceState) {
+			var url = window.history.href,
+				scrollLeft = getScrollLeft(),
+				scrollTop = getScrollTop(),
+				state = me.lastState;
+
+			window.history.replaceState(state, '', url);
+		}
+	}
+	
+	function internalPopstateEvent(e) {
+		me.popstateEvent(e);
+		me.lastState = e.state;
+	}
 	
 	function linkClickEvent(e) {
 		var target = e.currentTarget,
@@ -64,7 +117,7 @@ var pp = new function () {
 			r[decodeURIComponent(splitVal[0])] = decodeURIComponent(splitVal[1]);
 		}
 		
-		return me.sortObject(r);
+		return r;
 	}
 	
 	me.getParamQueryString = function(params, i, isLastParam) {
@@ -112,6 +165,8 @@ var pp = new function () {
 			me.popstateEvent({
 				state: params
 			});
+			
+			me.lastState = params;
 			
 		}
 	};

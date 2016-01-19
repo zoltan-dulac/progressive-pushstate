@@ -3,7 +3,6 @@ var example1 = new function () {
 	var outputEl = document.getElementById('output');
 	
 	this.init = function () {
-		alert('initialized');
 		pp.init(this.popstateEvent, {
 			doPopstateOnload: true
 		});
