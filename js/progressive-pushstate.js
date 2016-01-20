@@ -43,7 +43,6 @@ var pp = new function () {
 		// will have the default state of the app in the query string. 
 		me.defaultEl = document.getElementsByClassName('pp-default');
 		
-		
 		me.popstateEvent = popstateEvent;
 		
 		var linksElLen = me.linksEl.length,
