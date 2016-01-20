@@ -9,19 +9,41 @@
 
 
 var pp = new function () {
-	var me = this;
+	var me = this,
+		orientation = screen.orientation || screen.mozOrientation || screen.msOrientation;
 	
 	me.linksEl = [];
 	me.lastState = {};
 	me.popstateEvent = function (e, state) {};
 	me.options = {};
 	
-	
+	/*
+	 * init(): called to initialize this object
+	 * 
+	 * popstateEvent: a method to call when the query string changes
+	 * options: options to configure this object.  Values can be:
+	 * 
+	 * - pushScrollState: enables the application to keep track of
+	 *   scrollbar position in the app. (default: false)
+	 * - debounceTime: sets the debounce time for resize/scroll events
+	 *   (default: 50)
+	 * - doPopstateOnload: fire the popstateEvent onload (default: true)
+	 * - defaultState: the initial default state of the application
+	 *   (default: {} or if a link with class "pp-default" exists, the
+	 *   URL of that link).
+	 * 
+	 */
 	me.init = function (popstateEvent, options) {
 		me.options = (options || {}); 
 		
+		// links that will update the state of the application
 		me.linksEl = document.getElementsByClassName('pp-link');
+		
+		// there should only be one link with this class, which
+		// will have the default state of the app in the query string. 
 		me.defaultEl = document.getElementsByClassName('pp-default');
+		
+		
 		me.popstateEvent = popstateEvent;
 		
 		var linksElLen = me.linksEl.length,
@@ -37,15 +59,33 @@ var pp = new function () {
 		
 		window.addEventListener('popstate', internalPopstateEvent);
 		
+		/*
+		 * allow developers to maintain scrollbar state onScroll
+		 * onResize and onorientationchange
+		 */
 		if (me.options.pushScrollState) {
 			// We make sure we throttle scroll and resize because
 			// browsers fire these events like mad and slow the browser
 			// down.
-			me.onScrollDebounced = debounce(scrollEvent, me.options.debounceTime || 50);
-			window.addEventListener('scroll', me.onScrollDebounced);
-			window.addEventListener('resize', me.onScrollDebounced);
+			me.scrollEventDebounced = debounce(scrollEvent, me.options.debounceTime || 50);
+			window.addEventListener('scroll', me.scrollEventDebounced);
+			window.addEventListener('resize', me.scrollEventDebounced);
+			
+			// Doing screen orientation change event handling by first
+			// checking for official W3C event handler, with an deprecated
+			// browser fallback.  More info:
+			// - https://w3c.github.io/screen-orientation/
+			// - https://developer.mozilla.org/en-US/docs/Web/Events/orientationchange
+			if (orientation) {
+				orientation.addEventListener('change', me.scrollEvent);
+			} else {
+				window.addEventListener('orientationchange', me.scrollEvent);
+			}
 		}
 		
+		/*
+		 * If options.doPopstateOnload exists, run the popstateEvent.
+		 */
 		if (me.options.doPopstateOnload) {
 			var splitLocation = location.href.split('?');
 			
@@ -80,6 +120,9 @@ var pp = new function () {
 	
 	/*
 	 * getScrollLeft/Top() from http://stackoverflow.com/questions/11193453/find-the-vertical-position-of-scrollbar-without-jquery
+	 * This will be used in the future to ensure when traversing
+	 * the browser history, that the scroll position is 
+	 * maintained this library is configured to do so.
 	 */
 	function getScrollLeft() {
 		return (window.pageXOffset !== undefined) ? window.pageXOffset : (document.documentElement || document.body.parentNode || document.body).scrollLeft;
@@ -100,6 +143,11 @@ var pp = new function () {
 		}
 	}
 	
+	/*
+	 * The onPopstate method handler. It runs the popstateEvent
+	 * given by the application to this library after setting
+	 * the event's state property.
+	 */
 	function internalPopstateEvent(e) {
 		var state;
 		
@@ -113,6 +161,11 @@ var pp = new function () {
 		me.lastState = state;
 	}
 	
+	/*
+	 * click event that is fired on <a href="" class="pp-link">
+	 * nodes.  It takes the link's URL and puts the data inside
+	 * the query string into the document's popstate for the URL.
+	 */
 	function linkClickEvent(e) {
 		var target = e.currentTarget,
 			URL = target.href,
@@ -129,12 +182,18 @@ var pp = new function () {
 		}
 	}
 	
-	
+	/*
+	 * grabs the URL without the query string from the browser.
+	 */
 	function getBaseUrl() {
 		var loc = window.location;
 		return loc.protocol + "//" + loc.host + loc.pathname;
 	};
 	
+	/*
+	 * Takes a query string and returns the string converted
+	 * into a JavaScript object.
+	 */
 	function queryStringToObject(qs) {
 		var keyVals = qs.split('&'),
 		keyValsLen = keyVals.length,
@@ -150,19 +209,9 @@ var pp = new function () {
 		return r;
 	}
 	
-	me.getParamQueryString = function(params, i, isLastParam) {
-		var q = "";
-
-		q += i + '=' + params[i];
-
-		if (!isLastParam) {
-			q += '&';
-		}
-
-		return q;
-	};
-
-	
+	/*
+	 * Takes a JavaScript object and converts it into a query string.
+	 */
 	function objectToQueryString(obj) {
 		var i, sb = [];
 		
@@ -174,14 +223,21 @@ var pp = new function () {
 		return sb.join('&');
 	}
 	
-	/**
-	 * http://stackoverflow.com/a/19279268/1778273
-	 *
-	 * updates the URL in the user's browser to include their latest search query
-	 * example:
-	 * - http://hostname/path/to/page?q=one -> search for two -> http://hostname/path/to/page?q=two
-	 *
-	 * @param query the User's search query
+	/*
+	 * Takes a query string and hash value and puts 
+	 * it into the history's pushstate.  For example:
+	 * 
+	 * qs -> "this=1&that=2&other=3"
+	 * hash -> myLinkName
+	 * 
+	 * will put this into the pushstate:
+	 * 
+	 * {
+	 * 	  this: '1',
+	 *    that: '2',
+	 *    other: '3',
+	 *    _ppHash: 'myLinkName'
+	 * } 
 	 */
 	me.updatePushState = function (e, qs, hash) {
 		
@@ -212,6 +268,10 @@ var pp = new function () {
 		}
 	};
 	
+	/*
+	 * This will be used in the future to compare two states to see if 
+	 * they are equal.
+	 */
 	me.sortObject = function(obj) {
 		return Object.keys(obj).sort().reduce(function (result, key) {
 			result[key] = obj[key];
