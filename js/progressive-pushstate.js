@@ -11,39 +11,51 @@
 var pp = new function () {
 	var me = this;
 	
-	me.links = [];
+	me.linksEl = [];
 	me.lastState = {};
-	me.popstateEvent = function (e) {};
+	me.popstateEvent = function (e, state) {};
+	me.options = {};
 	
 	
 	me.init = function (popstateEvent, options) {
-		me.links = document.getElementsByClassName('pp-link');
+		me.options = (options || {}); 
+		
+		me.linksEl = document.getElementsByClassName('pp-link');
+		me.defaultEl = document.getElementsByClassName('pp-default');
 		me.popstateEvent = popstateEvent;
 		
-		var linksLen = me.links.length,
+		var linksElLen = me.linksEl.length,
 			i;
 		
-		for (i=0; i<linksLen; i++) {
-			me.links[i].addEventListener('click', linkClickEvent);
+		for (i=0; i<linksElLen; i++) {
+			me.linksEl[i].addEventListener('click', linkClickEvent);
+		}
+		
+		if (me.defaultEl.length > 0) {
+			me.options.defaultState = queryStringToObject(me.defaultEl[0].href.split('?')[1]);
 		}
 		
 		window.addEventListener('popstate', internalPopstateEvent);
 		
-		if (options.pushScrollState) {
+		if (me.options.pushScrollState) {
 			// We make sure we throttle scroll and resize because
 			// browsers fire these events like mad and slow the browser
 			// down.
-			me.onScrollDebounced = debounce(scrollEvent, options.debounceTime || 50);
+			me.onScrollDebounced = debounce(scrollEvent, me.options.debounceTime || 50);
 			window.addEventListener('scroll', me.onScrollDebounced);
 			window.addEventListener('resize', me.onScrollDebounced);
 		}
 		
-		if (options.doPopstateOnload) {
+		if (me.options.doPopstateOnload) {
 			var splitLocation = location.href.split('?');
 			
 			if (splitLocation.length === 2) {
 				var params = queryStringToObject(splitLocation[1]);
 				me.popstateEvent({
+					type: 'init',
+					target: document,
+					currentTarget: document
+				}, {
 					state: params
 				});
 			}
@@ -89,8 +101,16 @@ var pp = new function () {
 	}
 	
 	function internalPopstateEvent(e) {
-		me.popstateEvent(e);
-		me.lastState = e.state;
+		var state;
+		
+		// if the state is null and we have a default state, use that instead.
+		if (me.options.defaultState !== null && e.state === null) {
+			state = me.options.defaultState;
+		} else {
+			state = e.state;
+		}
+		me.popstateEvent(e, state);
+		me.lastState = state;
 	}
 	
 	function linkClickEvent(e) {
@@ -99,13 +119,13 @@ var pp = new function () {
 			splitURL = URL.split('?');
 			
 		if (splitURL.length === 2) {
-			var qs = splitURL[1];
+			var splitHash=splitURL[1].split('#'),
+				qs = splitHash[0],
+				hash = splitHash[1];
+				
 			e.preventDefault();
-			me.updatePushState(qs);
+			me.updatePushState(e, qs, hash);
 			
-			if (pp.popStateEvent) {
-				pp.popStateEvent();
-			}
 		}
 	}
 	
@@ -163,18 +183,29 @@ var pp = new function () {
 	 *
 	 * @param query the User's search query
 	 */
-	me.updatePushState = function (qs) {
+	me.updatePushState = function (e, qs, hash) {
+		
+		e.preventDefault();
+		
 		
 		var params = queryStringToObject(qs);
+		
+		if (hash) {
+			params._ppHash = hash;
+		}
 		
 		if (window.history.pushState) {
 			var newUrl = getBaseUrl() + '?' + qs;
 			
-			window.history.pushState(params, '', newUrl + '?' + qs);
+			if (hash) {
+				newUrl += '#' + hash;
+			}
 			
-			me.popstateEvent({
-				state: params
-			});
+			window.history.pushState(params, '', newUrl);
+			
+			e.state = params;
+			
+			me.popstateEvent(e, params);
 			
 			me.lastState = params;
 			
