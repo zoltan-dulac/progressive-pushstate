@@ -4,7 +4,11 @@
  * with a server-side fallback.
  * 
  * by Zoltan Hawryluk (zoltan.dulac@gmail.com)
- * MIT License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *	 http://www.apache.org/licenses/LICENSE-2.0
  ********************************************************/
 
 
@@ -12,7 +16,8 @@ var pp = new function () {
 	var me = this,
 		orientation = screen.orientation || screen.mozOrientation || screen.msOrientation;
 	
-	me.linksEl = [];
+	me.linkEls = [];
+	me.formEls = [];
 	me.lastState = {};
 	me.popstateEvent = function (e, state) {};
 	me.options = {};
@@ -21,23 +26,25 @@ var pp = new function () {
 	 * init(): called to initialize this object
 	 * 
 	 * popstateEvent: a method to call when the query string changes
-	 * options: options to configure this object.  Values can be:
+	 * options: options to configure this object.	Values can be:
 	 * 
 	 * - pushScrollState: enables the application to keep track of
-	 *   scrollbar position in the app. (default: false)
+	 *	 scrollbar position in the app. (default: false)
 	 * - debounceTime: sets the debounce time for resize/scroll events
-	 *   (default: 50)
+	 *	 (default: 50)
 	 * - doPopstateOnload: fire the popstateEvent onload (default: true)
 	 * - defaultState: the initial default state of the application
-	 *   (default: {} or if a link with class "pp-default" exists, the
-	 *   URL of that link).
+	 *	 (default: {} or if a link with class "pp-default" exists, the
+	 *	 URL of that link).
 	 * 
 	 */
 	me.init = function (popstateEvent, options) {
 		me.options = (options || {}); 
 		
 		// links that will update the state of the application
-		me.linksEl = document.getElementsByClassName('pp-link');
+		me.linkEls = document.getElementsByClassName('pp-link');
+		
+		var formEls = document.getElementsByClassName('pp-form');
 		
 		// there should only be one link with this class, which
 		// will have the default state of the app in the query string. 
@@ -45,11 +52,24 @@ var pp = new function () {
 		
 		me.popstateEvent = popstateEvent;
 		
-		var linksElLen = me.linksEl.length,
+		var linkElsLen = me.linkEls.length,
+			formElsLen = formEls.length,
 			i;
 		
-		for (i=0; i<linksElLen; i++) {
-			me.linksEl[i].addEventListener('click', linkClickEvent);
+		for (i=0; i<linkElsLen; i++) {
+			me.linkEls[i].addEventListener('click', linkClickEvent);
+		}
+		
+		// We only allow changes for the first form to affect the
+		// pushstate.  Multiple forms may be allowed in a future
+		// release if it makes sense.
+		if (formElsLen > 0) {
+				me.formEl = formEls[0];
+				me.formEl.addEventListener('change', formChangeEvent);
+				
+				if (formElsLen > 1) {
+					window.console.warn('Only first form.pp-form element will affect the pushstate.');
+				}
 		}
 		
 		if (me.defaultEl.length > 0) {
@@ -72,7 +92,7 @@ var pp = new function () {
 			
 			// Doing screen orientation change event handling by first
 			// checking for official W3C event handler, with an deprecated
-			// browser fallback.  More info:
+			// browser fallback.	More info:
 			// - https://w3c.github.io/screen-orientation/
 			// - https://developer.mozilla.org/en-US/docs/Web/Events/orientationchange
 			if (orientation) {
@@ -94,9 +114,8 @@ var pp = new function () {
 					type: 'init',
 					target: document,
 					currentTarget: document
-				}, {
-					state: params
-				});
+				}, params);
+				me.lastState = params;
 			}
 		}
 	};
@@ -156,13 +175,33 @@ var pp = new function () {
 		} else {
 			state = e.state;
 		}
+		
+		// if there is a form here, let's change the form values
+		// to match the query string
+		updateForm(state);
+		
 		me.popstateEvent(e, state);
 		me.lastState = state;
 	}
 	
+	function updateForm(state) {
+		var i, 
+			fields = me.formEl.elements,
+			numEl = fields.length;
+		
+		for (i=0; i<numEl; i++) {
+			var field = fields[i],
+				name = field.name,
+				stateVal = state[name];
+			if (stateVal !== undefined) {
+				field.value = stateVal;
+			}
+			
+		}
+	}
 	/*
 	 * click event that is fired on <a href="" class="pp-link">
-	 * nodes.  It takes the link's URL and puts the data inside
+	 * nodes.	It takes the link's URL and puts the data inside
 	 * the query string into the document's popstate for the URL.
 	 */
 	function linkClickEvent(e) {
@@ -171,14 +210,19 @@ var pp = new function () {
 			splitURL = URL.split('?');
 			
 		if (splitURL.length === 2) {
-			var splitHash=splitURL[1].split('#'),
-				qs = splitHash[0],
-				hash = splitHash[1];
+			var qs = splitURL[1];
 				
 			e.preventDefault();
-			me.updatePushState(e, qs, hash);
+			me.updatePushState(e, qs);
 			
 		}
+	}
+	
+	function formChangeEvent(e) {
+		var target = e.currentTarget,
+			qs = me.formData2QueryString(target);
+			
+		me.updatePushState(e, qs);	
 	}
 	
 	/*
@@ -191,12 +235,15 @@ var pp = new function () {
 	
 	/*
 	 * Takes a query string and returns the string converted
-	 * into a JavaScript object.
+	 * into a JavaScript object.	If the query string has a 
+	 * hash anchor in it, it is put in the object's _ppHash
+	 * parameter.
 	 */
 	function queryStringToObject(qs) {
-		var keyVals = qs.split('&'),
-		keyValsLen = keyVals.length,
-		i, r = {};
+		var hashSplit = qs.split('#'),
+			keyVals = hashSplit[0].split('&'),
+			keyValsLen = keyVals.length,
+			i, r = {};
 		
 		for (i=0; i<keyValsLen; i++) {
 			var keyVal = keyVals[i],
@@ -205,6 +252,9 @@ var pp = new function () {
 			r[decodeURIComponent(splitVal[0])] = decodeURIComponent(splitVal[1]);
 		}
 		
+		if (hashSplit.length > 1) {
+			r._ppHash = hashSplit[1];
+		}
 		return r;
 	}
 	
@@ -224,7 +274,7 @@ var pp = new function () {
 	
 	/*
 	 * Takes a query string and hash value and puts 
-	 * it into the history's pushstate.  For example:
+	 * it into the history's pushstate.	For example:
 	 * 
 	 * qs -> "this=1&that=2&other=3"
 	 * hash -> myLinkName
@@ -232,36 +282,25 @@ var pp = new function () {
 	 * will put this into the pushstate:
 	 * 
 	 * {
-	 * 	  this: '1',
-	 *    that: '2',
-	 *    other: '3',
-	 *    _ppHash: 'myLinkName'
+	 * 		this: '1',
+	 *		that: '2',
+	 *		other: '3',
+	 *		_ppHash: 'myLinkName'
 	 * } 
 	 */
-	me.updatePushState = function (e, qs, hash) {
+	me.updatePushState = function (e, qs) {
 		
 		e.preventDefault();
 		
-		
 		var params = queryStringToObject(qs);
-		
-		if (hash) {
-			params._ppHash = hash;
-		}
 		
 		if (window.history.pushState) {
 			var newUrl = getBaseUrl() + '?' + qs;
-			
-			if (hash) {
-				newUrl += '#' + hash;
-			}
-			
 			window.history.pushState(params, '', newUrl);
 			
 			e.state = params;
 			
 			me.popstateEvent(e, params);
-			
 			me.lastState = params;
 			
 		}
@@ -277,5 +316,102 @@ var pp = new function () {
 			return result;
 		}, {});
 	};
+	
+	/*
+	 * Serializes the data from all the inputs in a Web form
+	 * into a query-string style string.
+	 * @param docForm -- Reference to a DOM node of the form element
+	 * @param formatOpts -- JS object of options for how to format
+	 * the return string. Supported options:
+	 *		collapseMulti: (Boolean) take values from elements that
+	 *		can return multiple values (multi-select, checkbox groups)
+	 *		and collapse into a single, comman-delimited value
+	 *		(e.g., thisVar=asdf,qwer,zxcv)
+	 * @returns query-string style String of variable-value pairs
+	 * 
+	 * Original code by Matthew Eernisse (mde@fleegix.org), March 2005
+	 * Additional bugfixes by Mark Pruett (mark.pruett@comcast.net), 12th July 2005
+	 * Multi-select added by Craig Anderson (craig@sitepoint.com), 24th August 2006
+	 *
+	*/
+
+	me.formData2QueryString = function (docForm, formatOpts) {	
+		var opts = formatOpts || {};
+		var str = '';
+		var formElem;
+		var lastElemName = '';
+		
+		for (i = 0; i < docForm.elements.length; i++) {
+			formElem = docForm.elements[i];
+	
+			switch (formElem.type) {
+				// Text fields, hidden form elements
+				case 'text':
+				case 'hidden':
+				case 'password':
+				case 'textarea':
+				case 'select-one':
+					str += formElem.name + '=' + encodeURIComponent(formElem.value) + '&';
+					break;
+					
+				// Multi-option select
+				case 'select-multiple':
+					var isSet = false;
+					for(var j = 0; j < formElem.options.length; j++) {
+						var currOpt = formElem.options[j];
+						if(currOpt.selected) {
+							if (opts.collapseMulti) {
+								if (isSet) {
+									str += ',' + encodeURIComponent(currOpt.value);
+								}
+								else {
+									str += formElem.name + '=' + encodeURIComponent(currOpt.value);
+									isSet = true;
+								}
+							}
+							else {
+								str += formElem.name + '=' + encodeURIComponent(currOpt.value) + '&';
+							}
+						}
+					}
+					if (opts.collapseMulti) {
+						str += '&';
+					}
+					break;
+				
+				// Radio buttons
+				case 'radio':
+					if (formElem.checked) {
+						str += formElem.name + '=' + encodeURIComponent(formElem.value) + '&';
+					}
+					break;
+					
+				// Checkboxes
+				case 'checkbox':
+					if (formElem.checked) {
+						// Collapse multi-select into comma-separated list
+						if (opts.collapseMulti && (formElem.name == lastElemName)) {
+							// Strip of end ampersand if there is one
+							if (str.lastIndexOf('&') == str.length-1) {
+								str = str.substr(0, str.length - 1);
+							}
+							// Append value as comma-delimited string
+							str += ',' + encodeURIComponent(formElem.value);
+						}
+						else {
+							str += formElem.name + '=' + encodeURIComponent(formElem.value);
+						}
+						str += '&';
+						lastElemName = formElem.name;
+					}
+					break;
+			
+			}
+		}
+		// Remove trailing separator
+		str = str.substr(0, str.length - 1);
+		return str;
+	};
+
 };
 
