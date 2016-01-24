@@ -1,0 +1,196 @@
+@import "reset.css";
+@import "../fonts/PressStart2P/stylesheet.css";
+@import "../fonts/Hyperspace/stylesheet.css";
+
+body {
+	font-family: "Helvetica", "Arial", sans-serif;
+	background: #000;
+	color: #fff;
+}
+
+header {
+	height: 60px;
+	padding: 1em;
+	line-height: 60px;
+}
+
+header h1 {
+	font-size: 30px;
+	font-family: "PressStart2P", sans-serif;
+	text-transform: uppercase;
+}
+
+nav {
+	background: #fff;
+	color: #000;
+	min-height: 30px;
+	line-height: 30px;
+	font-size: 15px;
+}
+
+nav ul li {
+	display: inline-block;
+}
+
+nav ul li a {
+	color: #000;
+	text-decoration: none;
+	padding: 0 20px;
+}
+
+article {
+	font-size: 20px;
+	padding: 1em;
+	max-width: 1200px;
+	margin: 0 auto;
+	line-height: 1.2;
+	font-family: "Hyperspace", sans-serif;
+	color: #01d259;
+	letter-spacing: 0.1em;
+	transform: translateZ(0);
+	animation: flicker 0.15s steps(20) infinite ;
+	
+}
+
+article.hide {
+	animation: turn-off 0.15s steps(20);
+}
+
+article.show {
+	animation: turn-on 0.15s steps(20);
+}
+
+article p {
+	margin-bottom: 1em;
+}
+
+article a {
+	color: #00f667;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+/*
+ * These animations were totally ripped off from Lucas Bebber
+ * http://codepen.io/lbebber/pen/XJRdrV/
+ */
+@keyframes flicker {
+  0% {
+    opacity: 0.84688;
+  }
+  5% {
+    opacity: 0.83625;
+  }
+  10% {
+    opacity: 0.97426;
+  }
+  15% {
+    opacity: 0.90222;
+  }
+  20% {
+    opacity: 0.83377;
+  }
+  25% {
+    opacity: 0.95831;
+  }
+  30% {
+    opacity: 0.86218;
+  }
+  35% {
+    opacity: 0.87985;
+  }
+  40% {
+    opacity: 0.8048;
+  }
+  45% {
+    opacity: 0.89521;
+  }
+  50% {
+    opacity: 0.99684;
+  }
+  55% {
+    opacity: 0.8347;
+  }
+  60% {
+    opacity: 0.95669;
+  }
+  65% {
+    opacity: 0.82683;
+  }
+  70% {
+    opacity: 0.89331;
+  }
+  75% {
+    opacity: 0.8511;
+  }
+  80% {
+    opacity: 0.88265;
+  }
+  85% {
+    opacity: 0.88624;
+  }
+  90% {
+    opacity: 0.96424;
+  }
+  95% {
+    opacity: 0.81607;
+  }
+  100% {
+    opacity: 0.81527;
+  }
+}
+
+
+@keyframes turn-on {
+  0% {
+    transform: scale(1, 0.8) translate3d(0, 0, 0);
+    -webkit-filter: brightness(30);
+    filter: brightness(30);
+    opacity: 1;
+  }
+  3.5% {
+    transform: scale(1, 0.8) translate3d(0, 100%, 0);
+  }
+  3.6% {
+    transform: scale(1, 0.8) translate3d(0, -100%, 0);
+    opacity: 1;
+  }
+  9% {
+    transform: scale(1.3, 0.6) translate3d(0, 100%, 0);
+    -webkit-filter: brightness(30);
+    filter: brightness(30);
+    opacity: 0;
+  }
+  11% {
+    transform: scale(1, 1) translate3d(0, 0, 0);
+    -webkit-filter: contrast(0) brightness(0);
+    filter: contrast(0) brightness(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1, 1) translate3d(0, 0, 0);
+    -webkit-filter: contrast(1) brightness(1.2) saturate(1.3);
+    filter: contrast(1) brightness(1.2) saturate(1.3);
+    opacity: 1;
+  }
+}
+
+@keyframes turn-off {
+  0% {
+    transform: scale(1, 1.3) translate3d(0, 0, 0);
+    -webkit-filter: brightness(1);
+    filter: brightness(1);
+    opacity: 1;
+  }
+  60% {
+    transform: scale(1.3, 0.001) translate3d(0, 0, 0);
+    -webkit-filter: brightness(10);
+    filter: brightness(10);
+  }
+  100% {
+    animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+    transform: scale(0, 0.0001) translate3d(0, 0, 0);
+    -webkit-filter: brightness(50);
+    filter: brightness(50);
+  }
+}

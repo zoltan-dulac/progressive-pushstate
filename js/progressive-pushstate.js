@@ -105,16 +105,26 @@ var pp = new function () {
 		/*
 		 * If options.doPopstateOnload exists, run the popstateEvent.
 		 */
-		if (me.options.doPopstateOnload) {
+		if (me.options.doPopstateOnload && window.history.replaceState) {
 			var splitLocation = location.href.split('?');
 			
 			if (splitLocation.length === 2) {
 				var params = queryStringToObject(splitLocation[1]);
+				
+				window.history.replaceState(params, '', window.history.location);
+				
+				// if there is a form and this is not
+				// a form event, let's populate the form.
+				if (me.formEl !== undefined) {
+					updateForm(params);
+				}
+				
 				me.popstateEvent({
 					type: 'init',
 					target: document,
-					currentTarget: document
-				}, params);
+					currentTarget: document,
+					state: params
+				});
 				me.lastState = params;
 			}
 		}
@@ -178,7 +188,9 @@ var pp = new function () {
 		
 		// if there is a form here, let's change the form values
 		// to match the query string
-		updateForm(state);
+		if (me.formEl !== undefined) {
+			updateForm(state);
+		}
 		
 		me.popstateEvent(e, state);
 		me.lastState = state;
@@ -289,7 +301,7 @@ var pp = new function () {
 	 * } 
 	 */
 	me.updatePushState = function (e, qs) {
-		
+		var target = e.currentTarget;
 		e.preventDefault();
 		
 		var params = queryStringToObject(qs);
@@ -299,6 +311,12 @@ var pp = new function () {
 			window.history.pushState(params, '', newUrl);
 			
 			e.state = params;
+			
+			// if there is a form and this is not
+			// a form event, let's populate the form.
+			if (me.formEl !== undefined && e.currentTarget !== me.formEl) {
+				updateForm(params);
+			}
 			
 			me.popstateEvent(e, params);
 			me.lastState = params;
@@ -332,6 +350,7 @@ var pp = new function () {
 	 * Original code by Matthew Eernisse (mde@fleegix.org), March 2005
 	 * Additional bugfixes by Mark Pruett (mark.pruett@comcast.net), 12th July 2005
 	 * Multi-select added by Craig Anderson (craig@sitepoint.com), 24th August 2006
+	 * HTML5 Form Element Support added by 
 	 *
 	*/
 
@@ -345,15 +364,7 @@ var pp = new function () {
 			formElem = docForm.elements[i];
 	
 			switch (formElem.type) {
-				// Text fields, hidden form elements
-				case 'text':
-				case 'hidden':
-				case 'password':
-				case 'textarea':
-				case 'select-one':
-					str += formElem.name + '=' + encodeURIComponent(formElem.value) + '&';
-					break;
-					
+				
 				// Multi-option select
 				case 'select-multiple':
 					var isSet = false;
@@ -405,7 +416,14 @@ var pp = new function () {
 						lastElemName = formElem.name;
 					}
 					break;
-			
+				// Text fields, hidden form elements, passwords, textareas, single
+				// select elements, range, date and color.  Note that we use 
+				// default here in order to catch
+				// others that may not be defined yet.
+				default:
+					str += formElem.name + '=' + encodeURIComponent(formElem.value) + '&';
+					break;
+					
 			}
 		}
 		// Remove trailing separator
