@@ -81,7 +81,7 @@ var pp = new function () {
 						if (event.indexOf('key') === 0) {
 							me.formEl.addEventListener(events[i], me.formChangeEventDebounced);
 						} else {
-							me.formEl.addEventListener(events[i], me.formChangeEvent);
+							me.formEl.addEventListener(events[i], formChangeEvent);
 						}
 					}
 				} else {
