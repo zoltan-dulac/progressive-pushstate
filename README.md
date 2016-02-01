@@ -166,7 +166,7 @@ None.  This is plain ol' JavaScript, my friend.  You can use it with jQuery/Moo 
 
 This has been tested on the latest versions of Firefox, Safari, Opera and Chrome as well as Internet Explorer 10+.  Any browser that supports the [HTML5 Session Management API](http://caniuse.com/#search=pushstate) should support this library.
 
-It *should* work with the [history.js HTML5 Session Management API](https://github.com/browserstate/history.js), but this hasn't been tested as of Janauary 25, 2016.  We will be doing so in the future, but since this `progressive-pushstate.js` was build with progressive enhancement in mind, it was not our main focus. 
+It *should* work with the [history.js HTML5 Session Management API polyfill](https://github.com/browserstate/history.js), but this hasn't been tested as of Janauary 25, 2016.  We may be doing so in the future, but since this `progressive-pushstate.js` was build with progressive enhancement in mind, it was not our main focus (especially since, if a dev uses this library correctly, any application that uses it should work with the Session Management API, because it was coded with progressive enhancement in mind).
 
 ## Other Notes
 
