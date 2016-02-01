@@ -28,9 +28,9 @@
 		
 		<article id="content">
 		<?php
-			$fragment = $_GET["f"];
-			
-			if ($fragment == "") {
+			if (isset($_GET["f"])) {
+				$fragment = $_GET["f"];
+			} else {
 				$fragment = "home";
 			}
 			include "includes/" . $fragment . ".html";

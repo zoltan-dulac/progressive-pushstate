@@ -1,0 +1,85 @@
+@import "reset.css";
+
+body {
+	font-family: "Helvetica", "Arial", sans-serif;
+	background: #000;
+	color: #fff;
+}
+
+
+
+ul {
+	display: inline-block;
+	margin: 20px auto;
+	padding-left: 2em;
+	list-style-type: circle;
+	text-align: left;
+}
+
+li {
+	
+}
+main, form{
+	text-align: center;
+}
+
+article {
+	
+	display: inline-block;
+	background: white;
+	font-size: 20px;
+	padding: 1em;
+	max-width: 1200px;
+	margin: 20px auto;
+	line-height: 1.2;
+	color: #000;
+	letter-spacing: 0.1em;
+	transform: translateZ(0);
+	transform-origin: 50% 0%;
+	perspective: 2000px;
+	
+}
+
+article.hide {
+	animation: fade-out 0.25s ease-in-out;
+}
+
+article.show {
+	animation: fade-in 0.25s ease-in-out;
+}
+
+article p {
+	margin-bottom: 1em;
+}
+
+article a {
+	color: #00f667;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+/*
+ * These animations were totally ripped off from Lucas Bebber
+ * http://codepen.io/lbebber/pen/XJRdrV/
+ */
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+    transform: translateZ(0) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateZ(0) translateY(200px);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateZ(0) translateY(-200px);
+  }
+  100% {
+  	opacity: 1;
+    transform: translateZ(0) translateY(0);
+  } 
+}

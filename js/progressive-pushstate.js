@@ -14,7 +14,8 @@
 
 var pp = new function () {
 	var me = this,
-		orientation = screen.orientation || screen.mozOrientation || screen.msOrientation;
+		orientation = screen.orientation || screen.mozOrientation || screen.msOrientation,
+		spaceRe = /\s+/g;
 	
 	me.linkEls = [];
 	me.formEls = [];
@@ -65,7 +66,29 @@ var pp = new function () {
 		// release if it makes sense.
 		if (formElsLen > 0) {
 				me.formEl = formEls[0];
-				me.formEl.addEventListener('change', formChangeEvent);
+				
+				var events = me.formEl.getAttribute('data-pp-events');
+				me.formChangeEventDebounced = debounce(formChangeEvent, me.options.keyDebounceTime || 500);
+				
+				if (events) {
+					events = events.split(spaceRe);
+					
+					var eventsLen = events.length;
+					
+					for (i=0; i<eventsLen; i++) {
+						var event = events[i];
+						
+						if (event.indexOf('key') === 0) {
+							me.formEl.addEventListener(events[i], me.formChangeEventDebounced);
+						} else {
+							me.formEl.addEventListener(events[i], me.formChangeEvent);
+						}
+					}
+				} else {
+					me.formEl.addEventListener('submit', formChangeEvent);
+				}
+				
+				
 				
 				if (formElsLen > 1) {
 					window.console.warn('Only first form.pp-form element will affect the pushstate.');
@@ -231,10 +254,21 @@ var pp = new function () {
 	}
 	
 	function formChangeEvent(e) {
-		var target = e.currentTarget,
+		// Target is the event's current target, or the target's form element
+		// since Firefox (and possibly others) have an issue with keypress on 
+		// form setting the currentTarget correctly.
+		var target = e.currentTarget || e.target.form,
 			qs = me.formData2QueryString(target);
 			
-		me.updatePushState(e, qs);	
+		me.updatePushState(e, qs);
+		
+		if (e.type === 'submit') {
+			var autoFocusEl = me.formEl.querySelector('input[autofocus], textarea[autofocus], select[autofocus]');
+			
+			if (autoFocusEl) {
+				autoFocusEl.focus();
+			}
+		}
 	}
 	
 	/*
@@ -302,9 +336,23 @@ var pp = new function () {
 	 */
 	me.updatePushState = function (e, qs) {
 		var target = e.currentTarget;
-		e.preventDefault();
+		
+		switch (e.type) {
+			
+			case 'submit':
+			case 'click':
+				e.preventDefault();
+				break;
+		}
 		
 		var params = queryStringToObject(qs);
+		
+		/* Insert the how many pages in history this page is */
+		if (me.lastState._ppPageNum === undefined && e.state === undefined) {
+			params._ppPageNum = 0;
+		} else if (e.type !== 'popstate') {
+			params._ppPageNum = me.lastState._ppPageNum + 1;
+		}
 		
 		if (window.history.pushState) {
 			var newUrl = getBaseUrl() + '?' + qs;
