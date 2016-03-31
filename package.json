@@ -1,0 +1,33 @@
+{
+  "name": "progressive-pushstate",
+  "version": "0.5.0",
+  "description": "A library to facilitate progressively enhanced pushstate/popstate enabled applications with a server-side fallback.",
+  "main": "js/progressive-pushstate.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zoltan-dulac/progressive-pushstate.git"
+  },
+  "keywords": [
+    "progressive",
+    "enhancement",
+    "pushstate",
+    "querystring",
+    "router"
+  ],
+  "author": "Zoltan Hawryluk",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/zoltan-dulac/progressive-pushstate/issues"
+  },
+  "homepage": "https://github.com/zoltan-dulac/progressive-pushstate",
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-contrib-uglify": "~1.0.1"
+  }
+}
