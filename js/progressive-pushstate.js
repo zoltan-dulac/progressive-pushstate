@@ -67,7 +67,7 @@ var pp = new function () {
 		if (formElsLen > 0) {
 				me.formEl = formEls[0];
 				
-				var events = me.formEl.getAttribute('data-pp-events');
+				var events = me.formEl.getAttribute('data-pp-events') || 'change';
 				me.formChangeEventDebounced = debounce(formChangeEvent, me.options.keyDebounceTime || 500);
 				
 				if (events) {
@@ -220,16 +220,61 @@ var pp = new function () {
 	}
 	
 	function updateForm(state) {
-		var i, 
+		var i, j,
 			fields = me.formEl.elements,
-			numEl = fields.length;
+			numEl = fields.length,
+			updatedNames = {};
 		
 		for (i=0; i<numEl; i++) {
 			var field = fields[i],
 				name = field.name,
 				stateVal = state[name];
-			if (stateVal !== undefined) {
-				field.value = stateVal;
+			
+			// if we dealt with this name already, then go to the next item in for
+			// loop.	
+			if (!updatedNames[name]) {
+			
+				
+				switch (field.type) {
+					case "radio":
+						var allElementsWithName = me.formEl.elements[name],
+							elsLen = allElementsWithName.length;
+							
+						for (j=0; j<elsLen; j++) {
+							var el = allElementsWithName[j];
+							
+							// if the value is in the stateVal array, check the box
+							if (el.value === stateVal) {
+								el.checked = true;
+							} else {
+								el.checked = false;
+							}
+						}
+						if (field.value === state[name]) {
+							field.checked = true;
+						}
+						break;
+					case "select-multiple":
+					case "checkbox":
+						var allElementsWithName = me.formEl.elements[name];
+						stateVal=stateVal ? stateVal.split(',') : [];
+						var elsLen = allElementsWithName.length
+						for (j=0; j<elsLen; j++) {
+							var el = allElementsWithName[j];
+							
+							// if the value is in the stateVal array, check the box
+							if (stateVal.indexOf(el.value) >= 0) {
+								el.checked = true;
+							} else {
+								el.checked = false;
+							}
+						}
+					default:
+						field.value = stateVal;
+				}
+					
+				
+				updatedNames[name] = true;
 			}
 			
 		}
@@ -258,7 +303,9 @@ var pp = new function () {
 		// since Firefox (and possibly others) have an issue with keypress on 
 		// form setting the currentTarget correctly.
 		var target = e.currentTarget || e.target.form,
-			qs = me.formData2QueryString(target);
+			qs = me.formData2QueryString(target, {
+				collapseMulti: me.options.collapseMulti
+			});
 			
 		me.updatePushState(e, qs);
 		
@@ -398,80 +445,81 @@ var pp = new function () {
 	 * Original code by Matthew Eernisse (mde@fleegix.org), March 2005
 	 * Additional bugfixes by Mark Pruett (mark.pruett@comcast.net), 12th July 2005
 	 * Multi-select added by Craig Anderson (craig@sitepoint.com), 24th August 2006
-	 * HTML5 Form Element Support added by 
+	 * HTML5 Form Element Support added by Zoltan Hawryluk (zoltan.dulac@gmail.com)
 	 *
 	*/
 
 	me.formData2QueryString = function (docForm, formatOpts) {	
-		var opts = formatOpts || {};
-		var str = '';
-		var formElem;
-		var lastElemName = '';
+		var opts = formatOpts || {},
+			str = '',
+			formElem,
+			lastElemName = '';
 		
 		for (i = 0; i < docForm.elements.length; i++) {
 			formElem = docForm.elements[i];
 	
-			switch (formElem.type) {
+			if (formElem.name) {
+				switch (formElem.type) {
 				
-				// Multi-option select
-				case 'select-multiple':
-					var isSet = false;
-					for(var j = 0; j < formElem.options.length; j++) {
-						var currOpt = formElem.options[j];
-						if(currOpt.selected) {
-							if (opts.collapseMulti) {
-								if (isSet) {
-									str += ',' + encodeURIComponent(currOpt.value);
+					// Multi-option select
+					case 'select-multiple':
+						var isSet = false;
+						for(var j = 0; j < formElem.options.length; j++) {
+							var currOpt = formElem.options[j];
+							if(currOpt.selected) {
+								if (opts.collapseMulti) {
+									if (isSet) {
+										str += ',' + encodeURIComponent(currOpt.value);
+									}
+									else {
+										str += formElem.name + '=' + encodeURIComponent(currOpt.value);
+										isSet = true;
+									}
 								}
 								else {
-									str += formElem.name + '=' + encodeURIComponent(currOpt.value);
-									isSet = true;
+									str += formElem.name + '=' + encodeURIComponent(currOpt.value) + '&';
 								}
 							}
+						}
+						if (opts.collapseMulti) {
+							str += '&';
+						}
+						break;
+					
+					// Radio buttons
+					case 'radio':
+						if (formElem.checked) {
+							str += formElem.name + '=' + encodeURIComponent(formElem.value) + '&';
+						}
+						break;
+						
+					// Checkboxes
+					case 'checkbox':
+						if (formElem.checked) {
+							// Collapse multi-select into comma-separated list
+							if (opts.collapseMulti && (formElem.name == lastElemName)) {
+								// Strip of end ampersand if there is one
+								if (str.lastIndexOf('&') == str.length-1) {
+									str = str.substr(0, str.length - 1);
+								}
+								// Append value as comma-delimited string
+								str += ',' + encodeURIComponent(formElem.value);
+							}
 							else {
-								str += formElem.name + '=' + encodeURIComponent(currOpt.value) + '&';
+								str += formElem.name + '=' + encodeURIComponent(formElem.value);
 							}
+							str += '&';
+							lastElemName = formElem.name;
 						}
-					}
-					if (opts.collapseMulti) {
-						str += '&';
-					}
-					break;
-				
-				// Radio buttons
-				case 'radio':
-					if (formElem.checked) {
+						break;
+					// Text fields, hidden form elements, passwords, textareas, single
+					// select elements, range, date and color.  Note that we use 
+					// default here in order to catch
+					// others that may not be defined yet.
+					default:
 						str += formElem.name + '=' + encodeURIComponent(formElem.value) + '&';
-					}
-					break;
-					
-				// Checkboxes
-				case 'checkbox':
-					if (formElem.checked) {
-						// Collapse multi-select into comma-separated list
-						if (opts.collapseMulti && (formElem.name == lastElemName)) {
-							// Strip of end ampersand if there is one
-							if (str.lastIndexOf('&') == str.length-1) {
-								str = str.substr(0, str.length - 1);
-							}
-							// Append value as comma-delimited string
-							str += ',' + encodeURIComponent(formElem.value);
-						}
-						else {
-							str += formElem.name + '=' + encodeURIComponent(formElem.value);
-						}
-						str += '&';
-						lastElemName = formElem.name;
-					}
-					break;
-				// Text fields, hidden form elements, passwords, textareas, single
-				// select elements, range, date and color.  Note that we use 
-				// default here in order to catch
-				// others that may not be defined yet.
-				default:
-					str += formElem.name + '=' + encodeURIComponent(formElem.value) + '&';
-					break;
-					
+						break;
+				}
 			}
 		}
 		// Remove trailing separator
