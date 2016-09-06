@@ -45,7 +45,7 @@ var pp = new function () {
 		// links that will update the state of the application
 		me.linkEls = document.getElementsByClassName('pp-link');
 		
-		var formEls = document.getElementsByClassName('pp-form');
+		me.formEls = document.getElementsByClassName('pp-form');
 		
 		// there should only be one link with this class, which
 		// will have the default state of the app in the query string. 
@@ -54,21 +54,24 @@ var pp = new function () {
 		me.popstateEvent = popstateEvent;
 		
 		var linkElsLen = me.linkEls.length,
-			formElsLen = formEls.length,
-			i;
+			formElsLen = me.formEls.length,
+			i, j;
 		
 		for (i=0; i<linkElsLen; i++) {
 			me.linkEls[i].addEventListener('click', linkClickEvent);
 		}
 		
-		// We only allow changes for the first form to affect the
-		// pushstate.  Multiple forms may be allowed in a future
-		// release if it makes sense.
-		if (formElsLen > 0) {
-				me.formEl = formEls[0];
+		me.formChangeEventDebounced = debounce(formChangeEvent, me.options.keyDebounceTime || 500);
+		
+		/*
+		 * We allow *all* forms of class `pp-form` to affect the pushState 
+		 * (previously it was only the first form of this class that could do
+		 * so
+		 */
+		for (j=0; j<formElsLen; j++) {
+				var formEl = me.formEls[j];
 				
-				var events = me.formEl.getAttribute('data-pp-events') || 'change';
-				me.formChangeEventDebounced = debounce(formChangeEvent, me.options.keyDebounceTime || 500);
+				var events = formEl.getAttribute('data-pp-events') || 'change';
 				
 				if (events) {
 					events = events.split(spaceRe);
@@ -79,20 +82,17 @@ var pp = new function () {
 						var event = events[i];
 						
 						if (event.indexOf('key') === 0) {
-							me.formEl.addEventListener(events[i], me.formChangeEventDebounced);
+							formEl.addEventListener(events[i], me.formChangeEventDebounced);
 						} else {
-							me.formEl.addEventListener(events[i], formChangeEvent);
+							formEl.addEventListener(events[i], formChangeEvent);
 						}
 					}
 				} else {
-					me.formEl.addEventListener('submit', formChangeEvent);
+					formEl.addEventListener('submit', formChangeEvent);
 				}
 				
 				
 				
-				if (formElsLen > 1) {
-					window.console.warn('Only first form.pp-form element will affect the pushstate.');
-				}
 		}
 		
 		if (me.defaultEl.length > 0) {
@@ -138,8 +138,8 @@ var pp = new function () {
 				
 				// if there is a form and this is not
 				// a form event, let's populate the form.
-				if (me.formEl !== undefined) {
-					updateForm(params);
+				if (me.formEls.length !== 0) {
+					updateForms(params);
 				}
 				
 				me.popstateEvent({
@@ -211,72 +211,76 @@ var pp = new function () {
 		
 		// if there is a form here, let's change the form values
 		// to match the query string
-		if (me.formEl !== undefined) {
-			updateForm(state);
+		if (me.formEls.length !== 0) {
+			updateForms(state);
 		}
 		
 		me.popstateEvent(e, state);
 		me.lastState = state;
 	}
 	
-	function updateForm(state) {
-		var i, j,
-			fields = me.formEl.elements,
-			numEl = fields.length,
-			updatedNames = {};
+	function updateForms(state) {
+		var h, i, j;
 		
-		for (i=0; i<numEl; i++) {
-			var field = fields[i],
-				name = field.name,
-				stateVal = state[name];
-			
-			// if we dealt with this name already, then go to the next item in for
-			// loop.	
-			if (!updatedNames[name]) {
-			
+		for (h=0; h<me.formEls.length; h++) {
+			var formEl = me.formEls[h],
+				fields = formEl.elements,
+				numEl = fields.length,
+				updatedNames = {};
 				
-				switch (field.type) {
-					case "radio":
-						var allElementsWithName = me.formEl.elements[name],
-							elsLen = allElementsWithName.length;
-							
-						for (j=0; j<elsLen; j++) {
-							var el = allElementsWithName[j];
-							
-							// if the value is in the stateVal array, check the box
-							if (el.value === stateVal) {
-								el.checked = true;
-							} else {
-								el.checked = false;
-							}
-						}
-						if (field.value === state[name]) {
-							field.checked = true;
-						}
-						break;
-					case "select-multiple":
-					case "checkbox":
-						var allElementsWithName = me.formEl.elements[name];
-						stateVal=stateVal ? stateVal.split(',') : [];
-						var elsLen = allElementsWithName.length
-						for (j=0; j<elsLen; j++) {
-							var el = allElementsWithName[j];
-							
-							// if the value is in the stateVal array, check the box
-							if (stateVal.indexOf(el.value) >= 0) {
-								el.checked = true;
-							} else {
-								el.checked = false;
-							}
-						}
-					default:
-						field.value = stateVal;
-				}
+			for (i=0; i<numEl; i++) {
+				var field = fields[i],
+					name = field.name,
+					stateVal = state[name];
+				
+				// if we dealt with this name already, then go to the next item in for
+				// loop.	
+				if (!updatedNames[name]) {
+				
 					
+					switch (field.type) {
+						case "radio":
+							var allElementsWithName = formEl.elements[name],
+								elsLen = allElementsWithName.length;
+								
+							for (j=0; j<elsLen; j++) {
+								var el = allElementsWithName[j];
+								
+								// if the value is in the stateVal array, check the box
+								if (el.value === stateVal) {
+									el.checked = true;
+								} else {
+									el.checked = false;
+								}
+							}
+							if (field.value === state[name]) {
+								field.checked = true;
+							}
+							break;
+						case "select-multiple":
+						case "checkbox":
+							var allElementsWithName = formEl.elements[name];
+							stateVal=stateVal ? stateVal.split(',') : [];
+							var elsLen = allElementsWithName.length
+							for (j=0; j<elsLen; j++) {
+								var el = allElementsWithName[j];
+								
+								// if the value is in the stateVal array, check the box
+								if (stateVal.indexOf(el.value) >= 0) {
+									el.checked = true;
+								} else {
+									el.checked = false;
+								}
+							}
+						default:
+							field.value = stateVal;
+					}
+						
+					
+					updatedNames[name] = true;
+				}
 				
-				updatedNames[name] = true;
 			}
-			
 		}
 	}
 	/*
@@ -310,11 +314,15 @@ var pp = new function () {
 		me.updatePushState(e, qs);
 		
 		if (e.type === 'submit') {
-			var autoFocusEl = me.formEl.querySelector('input[autofocus], textarea[autofocus], select[autofocus]');
-			
-			if (autoFocusEl) {
-				autoFocusEl.focus();
+			for (var i=0; i<me.formEls.length; i++) {
+				var autoFocusEl = me.formEls[i].querySelector('input[autofocus], textarea[autofocus], select[autofocus]');
+				
+				if (autoFocusEl) {
+					autoFocusEl.focus();
+					break;
+				}
 			}
+			e.preventDefault();
 		}
 	}
 	
@@ -382,7 +390,7 @@ var pp = new function () {
 	 * } 
 	 */
 	me.updatePushState = function (e, qs) {
-		var target = e.currentTarget;
+		var target = e.currentTarget || e.target;
 		
 		switch (e.type) {
 			
@@ -409,8 +417,8 @@ var pp = new function () {
 			
 			// if there is a form and this is not
 			// a form event, let's populate the form.
-			if (me.formEl !== undefined && e.currentTarget !== me.formEl) {
-				updateForm(params);
+			if (me.formEls.length !== 0 && target.nodeName !== 'FORM') {
+				updateForms(params);
 			}
 			
 			me.popstateEvent(e, params);
