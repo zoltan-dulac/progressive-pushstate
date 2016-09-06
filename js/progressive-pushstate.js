@@ -66,7 +66,7 @@ var pp = new function () {
 		/*
 		 * We allow *all* forms of class `pp-form` to affect the pushState 
 		 * (previously it was only the first form of this class that could do
-		 * so
+		 * so).
 		 */
 		for (j=0; j<formElsLen; j++) {
 				var formEl = me.formEls[j];
