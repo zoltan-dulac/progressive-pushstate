@@ -55,7 +55,7 @@ var pp = new function () {
 		
 		var linkElsLen = me.linkEls.length,
 			formElsLen = me.formEls.length,
-			i, j;
+			i, j, k;
 		
 		for (i=0; i<linkElsLen; i++) {
 			me.linkEls[i].addEventListener('click', linkClickEvent);
@@ -69,9 +69,27 @@ var pp = new function () {
 		 * so).
 		 */
 		for (j=0; j<formElsLen; j++) {
-				var formEl = me.formEls[j];
+				var formEl = me.formEls[j],
+					events = formEl.getAttribute('data-pp-events') || 'change',
+					eventNodes = [formEl];
 				
-				var events = formEl.getAttribute('data-pp-events') || 'change';
+				/*
+				 * We check all fields to see which ones are *not* a child of
+				 * the form element.  Those that aren't need to listen to the 
+				 * given events, because it won't be bubbled up to the form element
+				 * itself, so we store add them in the `eventNodes` array. 
+				 */
+				var formFields = formEl.elements;
+				window.console.log('formFields', formFields);
+				for (k=0; k < formFields.length; k++ ) {
+					var formField = formFields[k],
+						closestForm = formField.closest('form');
+						
+						if (closestForm !== formEl) {
+							window.console.log('Orphan field:', formField);
+							eventNodes.push(formField);
+						}
+				}
 				
 				if (events) {
 					events = events.split(spaceRe);
@@ -81,11 +99,16 @@ var pp = new function () {
 					for (i=0; i<eventsLen; i++) {
 						var event = events[i];
 						
-						if (event.indexOf('key') === 0) {
-							formEl.addEventListener(events[i], me.formChangeEventDebounced);
-						} else {
-							formEl.addEventListener(events[i], formChangeEvent);
+						for (k=0; k < eventNodes.length; k++) {
+							var eventNode = eventNodes[k];
+							
+							if (event.indexOf('key') === 0) {
+								eventNode.addEventListener(events[i], me.formChangeEventDebounced);
+							} else {
+								eventNode.addEventListener(events[i], formChangeEvent);
+							}
 						}
+						
 					}
 				} else {
 					formEl.addEventListener('submit', formChangeEvent);
@@ -306,10 +329,21 @@ var pp = new function () {
 		// Target is the event's current target, or the target's form element
 		// since Firefox (and possibly others) have an issue with keypress on 
 		// form setting the currentTarget correctly.
-		var target = e.currentTarget || e.target.form,
-			qs = me.formData2QueryString(target, {
-				collapseMulti: me.options.collapseMulti
-			});
+		var target, qs;
+		
+		if (e.type.indexOf('key') === 0) {
+			target = e.currentTarget || e.target.form;
+		} else {
+			target = e.target;
+		}
+		
+		if (target.form) {
+			target = target.form;
+		}
+		
+		qs = me.formData2QueryString(target, {
+			collapseMulti: me.options.collapseMulti
+		});
 			
 		me.updatePushState(e, qs);
 		
@@ -537,3 +571,34 @@ var pp = new function () {
 
 };
 
+// element-closest | CC0-1.0 | github.com/jonathantneal/closest
+
+if (typeof Element.prototype.matches !== 'function') {
+	Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.webkitMatchesSelector || function matches(selector) {
+		var element = this;
+		var elements = (element.document || element.ownerDocument).querySelectorAll(selector);
+		var index = 0;
+
+		while (elements[index] && elements[index] !== element) {
+			++index;
+		}
+
+		return Boolean(elements[index]);
+	};
+}
+
+if (typeof Element.prototype.closest !== 'function') {
+	Element.prototype.closest = function closest(selector) {
+		var element = this;
+
+		while (element && element.nodeType === 1) {
+			if (element.matches(selector)) {
+				return element;
+			}
+
+			element = element.parentNode;
+		}
+
+		return null;
+	};
+}
