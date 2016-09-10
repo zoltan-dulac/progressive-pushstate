@@ -2,22 +2,33 @@
 @import "../fonts/PressStart2P/stylesheet.css";
 @import "../fonts/Hyperspace/stylesheet.css";
 
+* {
+	box-sizing: border-box;
+}
+
 body {
 	font-family: "Helvetica", "Arial", sans-serif;
 	background: #000;
 	color: #fff;
+	margin: 0;
 }
 
 header {
 	height: 60px;
-	padding: 1em;
 	line-height: 60px;
+	background: #000;
+}
+
+header, nav {
+	position: relative;
+	z-index: 1;
 }
 
 header h1 {
 	font-size: 30px;
 	font-family: "PressStart2P", sans-serif;
 	text-transform: uppercase;
+	padding: 0 1rem;
 }
 
 nav {
@@ -40,16 +51,34 @@ nav ul li a {
 
 article {
 	font-size: 20px;
-	padding: 1em;
-	max-width: 1200px;
 	margin: 0 auto;
 	line-height: 1.2;
 	font-family: "Hyperspace", sans-serif;
 	color: #01d259;
-	letter-spacing: 0.1em;
+	letter-spacing: 0.1rem;
+}
+
+article .copy, article img {
 	transform: translateZ(0);
 	animation: flicker 0.15s steps(20) infinite ;
 	
+}
+
+article img {
+	width: 100vw;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 0;
+}
+
+article .copy {
+	position: relative;
+	background: rgba(0, 0, 0, 1);
+	z-index: 1;
+	margin: calc(53.6vw - 144px) auto 0 auto;
+	padding: 1rem;
+	width: 100vw;
 }
 
 article.hide {
@@ -61,7 +90,7 @@ article.show {
 }
 
 article p {
-	margin-bottom: 1em;
+	margin-bottom: 1rem;
 }
 
 article a {
