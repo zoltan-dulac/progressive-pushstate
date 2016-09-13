@@ -6,14 +6,21 @@ var example1 = new function () {
 		cache = {},
 		currentF,
 		$content = $('#content'),
-		$article = $('article'),
+		$body = $('body'),
 		currentState,
 		newContent,
 		transitionend = 'transitionend webkitTransitionEnd msTransitionEnd oTransitionEnd',
 		animationend = 'animationend webkitAnimationEnd MSAnimationEnd oAnimationEnd';
 	
 	me.init = function () {
-		pp.init(me.popstateEvent);
+		
+		// enable position sticky polyfill for browsers that need it.
+		//$('nav').Stickyfill();
+		$( 'nav' ).fixedsticky();
+		
+		pp.init(me.popstateEvent, {
+			doPopstateOnload: true
+		});
 	};
 	
 	me.popstateEvent = function(e) {
@@ -27,8 +34,8 @@ var example1 = new function () {
 				.done(function () {
 					newContent = $jxr.responseText;
 					cache[currentState.f] = newContent;
-					$article.on(animationend, hideTransitionEndEvent);
-					$article.removeClass('show').addClass('hide');
+					$body.on(animationend, hideTransitionEndEvent);
+					$body.removeClass('show').addClass('hide');
 					
 				})
 				.fail(function () {
@@ -36,24 +43,25 @@ var example1 = new function () {
 				});
 			 
 		} else {
-			$article.on(animationend, hideTransitionEndEvent);
+			$body.on(animationend, hideTransitionEndEvent);
 			newContent = cache[currentState.f];
-			$article.removeClass('show').addClass('hide');
+			$body.removeClass('show').addClass('hide');
 			
 		}
  	};
  	
  	function hideTransitionEndEvent(e) {
- 		$article.off(animationend, hideTransitionEndEvent);
-		$article.on(animationend, showTransitionEndEvent);
+ 		$body.off(animationend, hideTransitionEndEvent);
+		$body.on(animationend, showTransitionEndEvent);
 		$content.html(newContent);
 		
-		$article.removeClass('hide').addClass('show');
+		$body.removeClass('hide').addClass('show');
  	}
  	
  	function showTransitionEndEvent(e) {
- 		$article.off(animationend, showTransitionEndEvent);
- 		$article.removeClass('show hide');
+ 		window.scrollTo(0, 0);
+ 		$body.off(animationend, showTransitionEndEvent);
+ 		$body.removeClass('show hide');
  	}
 	 
 };
