@@ -84,10 +84,18 @@ article h2 {
 	color: white;
 	z-index: 5;
 	text-align: center;
+	padding-top: 15vw;
+	
+	text-shadow: 0 0 10px  #ffffff, 0 0 20px  #ffffff,
+							0 0 30px  #ffffff, 0 0 40px  #ff00de,
+							0 0 70px  #ff00de, 0 0 80px  #ff00de,
+							0 0 100px #ff00de, 0 0 150px #ff00de;
 }
+
 
 body {
 	position: relative;
+	transform: translateZ(0);
 	/* animation: flicker 0.15s steps(20) infinite ; */
 	
 }
@@ -124,6 +132,11 @@ body.show {
 	animation: turn-on 0.15s steps(20);
 }
 
+body.show article h2,
+body.hide article h2 {
+	display: none;
+}
+
 article p {
 	margin-bottom: 1rem;
 }
@@ -151,10 +164,10 @@ article a {
   left: 0;
 }
 .parallax__layer--base {
-  transform: translateZ(-0.5px) translateY(-50px) scale(1.5);
+  transform: translateZ(-0.5px);
 }
 .parallax__layer--back {
-  transform: translateZ(-1px);
+  transform: translateZ(-1px)  translateY(-150px) scale(2);
 }
 
 /*

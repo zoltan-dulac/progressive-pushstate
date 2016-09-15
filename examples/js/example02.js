@@ -14,9 +14,6 @@ var example1 = new function () {
 	
 	me.init = function () {
 		
-		// enable position sticky polyfill for browsers that need it.
-		//$('nav').Stickyfill();
-		$( 'nav' ).fixedsticky();
 		
 		pp.init(me.popstateEvent, {
 			doPopstateOnload: true
