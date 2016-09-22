@@ -45,7 +45,7 @@ var pp = new function () {
 		// links that will update the state of the application
 		me.linkEls = document.getElementsByClassName('pp-link');
 		
-		var formEls = document.getElementsByClassName('pp-form');
+		me.formEls = document.getElementsByClassName('pp-form');
 		
 		// there should only be one link with this class, which
 		// will have the default state of the app in the query string. 
@@ -54,21 +54,42 @@ var pp = new function () {
 		me.popstateEvent = popstateEvent;
 		
 		var linkElsLen = me.linkEls.length,
-			formElsLen = formEls.length,
-			i;
+			formElsLen = me.formEls.length,
+			i, j, k;
 		
 		for (i=0; i<linkElsLen; i++) {
 			me.linkEls[i].addEventListener('click', linkClickEvent);
 		}
 		
-		// We only allow changes for the first form to affect the
-		// pushstate.  Multiple forms may be allowed in a future
-		// release if it makes sense.
-		if (formElsLen > 0) {
-				me.formEl = formEls[0];
+		me.formChangeEventDebounced = debounce(formChangeEvent, me.options.keyDebounceTime || 500);
+		
+		/*
+		 * We allow *all* forms of class `pp-form` to affect the pushState 
+		 * (previously it was only the first form of this class that could do
+		 * so).
+		 */
+		for (j=0; j<formElsLen; j++) {
+				var formEl = me.formEls[j],
+					events = formEl.getAttribute('data-pp-events') || 'change',
+					eventNodes = [formEl];
 				
-				var events = me.formEl.getAttribute('data-pp-events');
-				me.formChangeEventDebounced = debounce(formChangeEvent, me.options.keyDebounceTime || 500);
+				/*
+				 * We check all fields to see which ones are *not* a child of
+				 * the form element.  Those that aren't need to listen to the 
+				 * given events, because it won't be bubbled up to the form element
+				 * itself, so we store add them in the `eventNodes` array. 
+				 */
+				var formFields = formEl.elements;
+				window.console.log('formFields', formFields);
+				for (k=0; k < formFields.length; k++ ) {
+					var formField = formFields[k],
+						closestForm = formField.closest('form');
+						
+						if (closestForm !== formEl) {
+							window.console.log('Orphan field:', formField);
+							eventNodes.push(formField);
+						}
+				}
 				
 				if (events) {
 					events = events.split(spaceRe);
@@ -78,21 +99,23 @@ var pp = new function () {
 					for (i=0; i<eventsLen; i++) {
 						var event = events[i];
 						
-						if (event.indexOf('key') === 0) {
-							me.formEl.addEventListener(events[i], me.formChangeEventDebounced);
-						} else {
-							me.formEl.addEventListener(events[i], formChangeEvent);
+						for (k=0; k < eventNodes.length; k++) {
+							var eventNode = eventNodes[k];
+							
+							if (event.indexOf('key') === 0) {
+								eventNode.addEventListener(events[i], me.formChangeEventDebounced);
+							} else {
+								eventNode.addEventListener(events[i], formChangeEvent);
+							}
 						}
+						
 					}
 				} else {
-					me.formEl.addEventListener('submit', formChangeEvent);
+					formEl.addEventListener('submit', formChangeEvent);
 				}
 				
 				
 				
-				if (formElsLen > 1) {
-					window.console.warn('Only first form.pp-form element will affect the pushstate.');
-				}
 		}
 		
 		if (me.defaultEl.length > 0) {
@@ -138,8 +161,8 @@ var pp = new function () {
 				
 				// if there is a form and this is not
 				// a form event, let's populate the form.
-				if (me.formEl !== undefined) {
-					updateForm(params);
+				if (me.formEls.length !== 0) {
+					updateForms(params);
 				}
 				
 				me.popstateEvent({
@@ -211,27 +234,76 @@ var pp = new function () {
 		
 		// if there is a form here, let's change the form values
 		// to match the query string
-		if (me.formEl !== undefined) {
-			updateForm(state);
+		if (me.formEls.length !== 0) {
+			updateForms(state);
 		}
 		
 		me.popstateEvent(e, state);
 		me.lastState = state;
 	}
 	
-	function updateForm(state) {
-		var i, 
-			fields = me.formEl.elements,
-			numEl = fields.length;
+	function updateForms(state) {
+		var h, i, j;
 		
-		for (i=0; i<numEl; i++) {
-			var field = fields[i],
-				name = field.name,
-				stateVal = state[name];
-			if (stateVal !== undefined) {
-				field.value = stateVal;
+		for (h=0; h<me.formEls.length; h++) {
+			var formEl = me.formEls[h],
+				fields = formEl.elements,
+				numEl = fields.length,
+				updatedNames = {};
+				
+			for (i=0; i<numEl; i++) {
+				var field = fields[i],
+					name = field.name,
+					stateVal = state[name];
+				
+				// if we dealt with this name already, then go to the next item in for
+				// loop.	
+				if (!updatedNames[name]) {
+				
+					
+					switch (field.type) {
+						case "radio":
+							var allElementsWithName = formEl.elements[name],
+								elsLen = allElementsWithName.length;
+								
+							for (j=0; j<elsLen; j++) {
+								var el = allElementsWithName[j];
+								
+								// if the value is in the stateVal array, check the box
+								if (el.value === stateVal) {
+									el.checked = true;
+								} else {
+									el.checked = false;
+								}
+							}
+							if (field.value === state[name]) {
+								field.checked = true;
+							}
+							break;
+						case "select-multiple":
+						case "checkbox":
+							var allElementsWithName = formEl.elements[name];
+							stateVal=stateVal ? stateVal.split(',') : [];
+							var elsLen = allElementsWithName.length
+							for (j=0; j<elsLen; j++) {
+								var el = allElementsWithName[j];
+								
+								// if the value is in the stateVal array, check the box
+								if (stateVal.indexOf(el.value) >= 0) {
+									el.checked = true;
+								} else {
+									el.checked = false;
+								}
+							}
+						default:
+							field.value = stateVal;
+					}
+						
+					
+					updatedNames[name] = true;
+				}
+				
 			}
-			
 		}
 	}
 	/*
@@ -257,17 +329,34 @@ var pp = new function () {
 		// Target is the event's current target, or the target's form element
 		// since Firefox (and possibly others) have an issue with keypress on 
 		// form setting the currentTarget correctly.
-		var target = e.currentTarget || e.target.form,
-			qs = me.formData2QueryString(target);
+		var target, qs;
+		
+		if (e.type.indexOf('key') === 0) {
+			target = e.currentTarget || e.target.form;
+		} else {
+			target = e.target;
+		}
+		
+		if (target.form) {
+			target = target.form;
+		}
+		
+		qs = me.formData2QueryString(target, {
+			collapseMulti: me.options.collapseMulti
+		});
 			
 		me.updatePushState(e, qs);
 		
 		if (e.type === 'submit') {
-			var autoFocusEl = me.formEl.querySelector('input[autofocus], textarea[autofocus], select[autofocus]');
-			
-			if (autoFocusEl) {
-				autoFocusEl.focus();
+			for (var i=0; i<me.formEls.length; i++) {
+				var autoFocusEl = me.formEls[i].querySelector('input[autofocus], textarea[autofocus], select[autofocus]');
+				
+				if (autoFocusEl) {
+					autoFocusEl.focus();
+					break;
+				}
 			}
+			e.preventDefault();
 		}
 	}
 	
@@ -335,7 +424,7 @@ var pp = new function () {
 	 * } 
 	 */
 	me.updatePushState = function (e, qs) {
-		var target = e.currentTarget;
+		var target = e.currentTarget || e.target;
 		
 		switch (e.type) {
 			
@@ -362,8 +451,8 @@ var pp = new function () {
 			
 			// if there is a form and this is not
 			// a form event, let's populate the form.
-			if (me.formEl !== undefined && e.currentTarget !== me.formEl) {
-				updateForm(params);
+			if (me.formEls.length !== 0 && target.nodeName !== 'FORM') {
+				updateForms(params);
 			}
 			
 			me.popstateEvent(e, params);
@@ -398,80 +487,81 @@ var pp = new function () {
 	 * Original code by Matthew Eernisse (mde@fleegix.org), March 2005
 	 * Additional bugfixes by Mark Pruett (mark.pruett@comcast.net), 12th July 2005
 	 * Multi-select added by Craig Anderson (craig@sitepoint.com), 24th August 2006
-	 * HTML5 Form Element Support added by 
+	 * HTML5 Form Element Support added by Zoltan Hawryluk (zoltan.dulac@gmail.com)
 	 *
 	*/
 
 	me.formData2QueryString = function (docForm, formatOpts) {	
-		var opts = formatOpts || {};
-		var str = '';
-		var formElem;
-		var lastElemName = '';
+		var opts = formatOpts || {},
+			str = '',
+			formElem,
+			lastElemName = '';
 		
 		for (i = 0; i < docForm.elements.length; i++) {
 			formElem = docForm.elements[i];
 	
-			switch (formElem.type) {
+			if (formElem.name) {
+				switch (formElem.type) {
 				
-				// Multi-option select
-				case 'select-multiple':
-					var isSet = false;
-					for(var j = 0; j < formElem.options.length; j++) {
-						var currOpt = formElem.options[j];
-						if(currOpt.selected) {
-							if (opts.collapseMulti) {
-								if (isSet) {
-									str += ',' + encodeURIComponent(currOpt.value);
+					// Multi-option select
+					case 'select-multiple':
+						var isSet = false;
+						for(var j = 0; j < formElem.options.length; j++) {
+							var currOpt = formElem.options[j];
+							if(currOpt.selected) {
+								if (opts.collapseMulti) {
+									if (isSet) {
+										str += ',' + encodeURIComponent(currOpt.value);
+									}
+									else {
+										str += formElem.name + '=' + encodeURIComponent(currOpt.value);
+										isSet = true;
+									}
 								}
 								else {
-									str += formElem.name + '=' + encodeURIComponent(currOpt.value);
-									isSet = true;
+									str += formElem.name + '=' + encodeURIComponent(currOpt.value) + '&';
 								}
 							}
+						}
+						if (opts.collapseMulti) {
+							str += '&';
+						}
+						break;
+					
+					// Radio buttons
+					case 'radio':
+						if (formElem.checked) {
+							str += formElem.name + '=' + encodeURIComponent(formElem.value) + '&';
+						}
+						break;
+						
+					// Checkboxes
+					case 'checkbox':
+						if (formElem.checked) {
+							// Collapse multi-select into comma-separated list
+							if (opts.collapseMulti && (formElem.name == lastElemName)) {
+								// Strip of end ampersand if there is one
+								if (str.lastIndexOf('&') == str.length-1) {
+									str = str.substr(0, str.length - 1);
+								}
+								// Append value as comma-delimited string
+								str += ',' + encodeURIComponent(formElem.value);
+							}
 							else {
-								str += formElem.name + '=' + encodeURIComponent(currOpt.value) + '&';
+								str += formElem.name + '=' + encodeURIComponent(formElem.value);
 							}
+							str += '&';
+							lastElemName = formElem.name;
 						}
-					}
-					if (opts.collapseMulti) {
-						str += '&';
-					}
-					break;
-				
-				// Radio buttons
-				case 'radio':
-					if (formElem.checked) {
+						break;
+					// Text fields, hidden form elements, passwords, textareas, single
+					// select elements, range, date and color.  Note that we use 
+					// default here in order to catch
+					// others that may not be defined yet.
+					default:
 						str += formElem.name + '=' + encodeURIComponent(formElem.value) + '&';
-					}
-					break;
-					
-				// Checkboxes
-				case 'checkbox':
-					if (formElem.checked) {
-						// Collapse multi-select into comma-separated list
-						if (opts.collapseMulti && (formElem.name == lastElemName)) {
-							// Strip of end ampersand if there is one
-							if (str.lastIndexOf('&') == str.length-1) {
-								str = str.substr(0, str.length - 1);
-							}
-							// Append value as comma-delimited string
-							str += ',' + encodeURIComponent(formElem.value);
-						}
-						else {
-							str += formElem.name + '=' + encodeURIComponent(formElem.value);
-						}
-						str += '&';
-						lastElemName = formElem.name;
-					}
-					break;
-				// Text fields, hidden form elements, passwords, textareas, single
-				// select elements, range, date and color.  Note that we use 
-				// default here in order to catch
-				// others that may not be defined yet.
-				default:
-					str += formElem.name + '=' + encodeURIComponent(formElem.value) + '&';
-					break;
-					
+						break;
+				}
 			}
 		}
 		// Remove trailing separator
@@ -481,3 +571,34 @@ var pp = new function () {
 
 };
 
+// element-closest | CC0-1.0 | github.com/jonathantneal/closest
+
+if (typeof Element.prototype.matches !== 'function') {
+	Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.webkitMatchesSelector || function matches(selector) {
+		var element = this;
+		var elements = (element.document || element.ownerDocument).querySelectorAll(selector);
+		var index = 0;
+
+		while (elements[index] && elements[index] !== element) {
+			++index;
+		}
+
+		return Boolean(elements[index]);
+	};
+}
+
+if (typeof Element.prototype.closest !== 'function') {
+	Element.prototype.closest = function closest(selector) {
+		var element = this;
+
+		while (element && element.nodeType === 1) {
+			if (element.matches(selector)) {
+				return element;
+			}
+
+			element = element.parentNode;
+		}
+
+		return null;
+	};
+}
