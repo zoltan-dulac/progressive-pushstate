@@ -1,6 +1,19 @@
 {
   "name": "progressive-pushstate",
-  "version": "0.5.0",
+  
+  /*
+   * If you change the version, you must update the project using 
+   *
+   *   git tag v<version-number>
+   * 
+   * and then:
+   *
+   *   git push origin v<version-number>
+   * 
+   * Details at: 
+   *   http://stackoverflow.com/questions/19456091/bower-register-new-version
+   */
+  "version": "0.6.0",
   "homepage": "https://github.com/zoltan-dulac/progressive-pushstate",
   "authors": [
     "Zoltan Hawryluk <zoltan.dulac@gmail.com>"

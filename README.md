@@ -95,10 +95,10 @@ This form currently works like you (the developer) expect it to (by giving the f
    </html>
    ```
 
-* Next, just add the `pp-form` class to the form you want this AJAX magic to happen with:
+* Next, just add the `pp-form` class to the form you want this AJAX magic to happen with.  You should also put all events in the form that can trigger an ajax request inside the `data-pp-events` attribute:
 
    ```
-   <form class="pp-form">
+   <form class="pp-form" data-pp-events="change">
 	 <input type="text" name="name" 
 	          placeholder="Your full name (first, middle and last)." />
 	 <input type="text" name="country" 
