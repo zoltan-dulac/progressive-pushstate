@@ -80,7 +80,7 @@ article {
 article h2 {
 	text-transform: uppercase;
 	font-family: "PressStart2P", sans-serif;
-	font-size: 10vw;
+	font-size: 8vw;
 	color: white;
 	z-index: 5;
 	text-align: center;
@@ -100,11 +100,16 @@ body {
 	
 }
 
+/* Probably should be removed */
+article div.article-image {
+	background-attachment: fixed !important;
+	background-size: 100vw auto !important;
+}
+
 article .article-image {
 	width: 100vw;
 	height: 35vw;
-	background-attachment: fixed !important;
-	background-size: 100vw auto !important;
+	
 	top: 0;
 	left: 0;
 	z-index: 0;
@@ -155,6 +160,9 @@ article a {
   height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
+  perspective-origin-x: 100%;
+  transform-style: preserve-3d;
+  scroll-behavior: smooth;
 }
 .parallax__layer {
   position: absolute;
@@ -162,12 +170,13 @@ article a {
   right: 0;
   bottom: 0;
   left: 0;
+  transform-origin-x: 100%;
 }
 .parallax__layer--base {
   transform: translateZ(-0.5px);
 }
 .parallax__layer--back {
-  transform: translateZ(-1px)  translateY(-150px) scale(2);
+  transform: translateZ(-1px)  translateY(10vw) scale(2);
 }
 
 /*
@@ -342,13 +351,42 @@ article a {
 	}
 }
 
+/* tablet portrait */
+@media only screen and (max-width: 768px)
+and (orientation: portrait) {
+	article .article-image {
+		
+		width: 200vw;
+		height: auto;
+		
+		/* 50vw - width/2 */
+		left: -50vw;
+		
+		
+	}
+	
+	article .copy {
+		/* width(.article-image) * 376 / 702 */
+		margin-top: 107.1225071225071vw;
+	
+	}
+	
+	.parallax__layer--back {
+		transform: translateZ(-1px) translateY(-30vw) scale(1);
+	}
+	
+	.parallax__layer--base {
+		transform: translateZ(-0.5px) translateY(50vh) scale(2);
+	}
+}
+
 @media only screen and (max-width: 360px) {
 	header h1 {
 		font-size: 12px;
 	}
 	
 	article h2 {
-		margin-top: -60px;
+		
 	}
 	
 	article .copy {
