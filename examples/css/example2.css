@@ -65,7 +65,7 @@ nav ul li {
 nav ul li a {
 	color: #000;
 	text-decoration: none;
-	padding: 0 20px;
+	padding: 0 1.4vw;
 }
 
 article {
@@ -79,17 +79,37 @@ article {
 
 article h2 {
 	text-transform: uppercase;
-	font-family: "PressStart2P", sans-serif;
 	font-size: 8vw;
-	color: white;
-	z-index: 5;
-	text-align: center;
 	padding-top: 15vw;
+	text-align: center;
 	
+	/*
+	 * Note: I just commented out the last text-shadow instead of erasing it
+	 * since it does something curious in Android -- it slows down the render time
+	 * by 4 seconds (!).  Want to investigate why.
+	 */
 	text-shadow: 0 0 10px  #ffffff, 0 0 20px  #ffffff,
 							0 0 30px  #ffffff, 0 0 40px  #ff00de,
-							0 0 70px  #ff00de, 0 0 80px  #ff00de,
-							0 0 100px #ff00de, 0 0 150px #ff00de;
+							0 0 70px  #ff00de, 0 0 80px  #ff00de; /*,
+							0 0 100px #ff00de, 0 0 150px #ff00de; */
+}
+
+article h2,
+.parallax__layer--base p {
+	font-family: "PressStart2P", sans-serif;
+	color: white;
+	z-index: 5;
+	
+}
+
+.parallax__layer--base p {
+	margin-top: 40px;
+	color: white;
+	font-family: "PressStart2P", sans-serif;
+	font-size: 24px;
+	text-shadow: 0 0 5px  rgba(255, 255, 255, 0.5), 0 0 10px  rgba(255, 255, 255, 0.5),
+							0 0 15px  rgba(255, 255, 255, 0.5), 0 0 20px  rgba(255, 0, 222, 0.5),
+							0 0 35px  rgba(255, 0, 222, 0.5), 0 0 40px  rgba(255, 0, 222, 0.5);
 }
 
 
@@ -176,8 +196,36 @@ article a {
   transform: translateZ(-0.5px);
 }
 .parallax__layer--back {
-  transform: translateZ(-1px)  translateY(10vw) scale(2);
+  transform: translateZ(-1px)  translateY(-10vw) scale(2);
 }
+
+form {
+	position: relative;
+	margin: 7px 0;
+}
+
+
+form:before {
+	content: "☰";
+	font-weight: bold;
+	position: absolute;
+	display: block;
+	left: 5px;
+	top: -2px;
+}
+
+select {
+	font-family: "PressStart2P", sans-serif;
+	text-transform: uppercase;
+	-webkit-appearance: none;
+	appearance: none;
+	border: none;
+	background: #eee;
+	padding: 5px 5px 5px 50px;
+	box-shadow: 2px 2px 2px #000;
+	font-size: 12px;
+}	
+
 
 /*
  * For fixedsticky polyfill.
@@ -335,7 +383,7 @@ article a {
 /* tablet */
 @media only screen and (max-width: 768px) {
 	header h1 {
-		font-size: 13px;
+		font-size: 3.5vw;
 	}
 	
 	nav ul {
@@ -343,7 +391,7 @@ article a {
 	}
 	
 	.pp-form {
-		display: block;
+		display: inline-block;
 	}
 	
 	article .copy {
@@ -372,17 +420,24 @@ and (orientation: portrait) {
 	}
 	
 	.parallax__layer--back {
-		transform: translateZ(-1px) translateY(-30vw) scale(1);
+		transform: translateZ(-1px) translateY(-50vw) scale(1)
 	}
 	
 	.parallax__layer--base {
 		transform: translateZ(-0.5px) translateY(50vh) scale(2);
 	}
+	
+	.parallax__layer--base {
+		font-size: 5vw;
+    width: 70vw;
+    margin: 0 auto;
+    line-height: 1.3;
+	}
 }
 
 @media only screen and (max-width: 360px) {
 	header h1 {
-		font-size: 12px;
+		font-size: 3.5vw;
 	}
 	
 	article h2 {
@@ -390,7 +445,7 @@ and (orientation: portrait) {
 	}
 	
 	article .copy {
-		font-size: 12px;
+		font-size: 13px;
 	}
 	
 }

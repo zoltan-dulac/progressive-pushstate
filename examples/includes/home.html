@@ -1,1 +1,31 @@
-<p>This is the home page</p>
+<picture >
+	<source srcset="images/photos/invaders_sm.jpg" media="(max-width: 768px)">
+	<source srcset="images/photos/invaders-cropped.jpg" media="(min-width: 769px)">
+	<img class="article-image parallax__layer parallax__layer--back" srcset="images/photos/invaders-cropped.jpg" alt="Photo of arcade game Space Invaders.">
+</picture>
+
+<h2 class="parallax__layer parallax__layer--base smaller-text">Progressive Pushstate Demo</h2>
+
+<div class="copy">
+	<p>
+		This demo will show how progressive pushstate works.  With it, you can
+		have links and forms change the state of the page via <a href="">the HTML5
+		History API's state object</a>.  This is done by taking all CGI variables
+		inside a link or form and using them to change the state of the page via
+		JavaScript instead of going back to the server to load a different page.
+		Furthermore, if the URL of this resultant page is shared via email or
+		social media, the web server can parse the query string and render the page's
+		state on the server, thereby increasing rendering time at page load time
+		(which is an useful if the page is very JavaScript heavy and page load takes
+		a while)
+	</p>
+
+	<p>
+		To illustrate the point, choose any of the menu items in the header of
+		this page.  The content will be loaded via Ajax and the URL changes. Also
+		note the neat animation that happens when the page changes state &mdash;
+		this is impossible to do if reloading the whole page from the server.
+	</p>
+
+</div>
+</div>

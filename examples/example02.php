@@ -22,6 +22,7 @@
 			</header>
 			<nav class="fixedsticky">
 				<ul>
+					<li><a class="pp-link" href="?f=home">Home</a></li>
 					<li><a class="pp-link" href="?f=donkey-kong">Donkey Kong</a></li>
 					<li><a class="pp-link" href="?f=pac-man">Pac-Man</a></li>
 					<li><a class="pp-link" href="?f=robotron">Robotron 2084</a></li>
@@ -29,7 +30,7 @@
 				</ul>
 				<form class="pp-form" data-pp-events="change">
 					<select name="f">
-						<option value="">Home</option>
+						<option value="home">Home</option>
 						<option value="donkey-kong">Donkey Kong</option>
 						<option value="pac-man">Pac-Man</option>
 						<option value="robotron">Robotron 2048</option>

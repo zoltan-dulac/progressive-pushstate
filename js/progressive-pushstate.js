@@ -8,14 +8,25 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
- *	 http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  ********************************************************/
 
 
 var pp = new function () {
 	var me = this,
 		orientation = screen.orientation || screen.mozOrientation || screen.msOrientation,
-		spaceRe = /\s+/g;
+		spaceRe = /\s+/g,
+		
+		// Needed by entify()
+		ampRe = /&/g,
+		ltRe = /</g,
+		gtRe = />/g,
+		
+		// Needed by unentify()
+		ampEntRe = /&amp;/g,
+		ltEntRe = /&lt;/g,
+		rtEntRe = /&gt;/g;
+
 	
 	me.linkEls = [];
 	me.formEls = [];
@@ -30,17 +41,26 @@ var pp = new function () {
 	 * options: options to configure this object.	Values can be:
 	 * 
 	 * - pushScrollState: enables the application to keep track of
-	 *	 scrollbar position in the app. (default: false)
+	 *   scrollbar position in the app. (default: false)
 	 * - debounceTime: sets the debounce time for resize/scroll events
-	 *	 (default: 50)
-	 * - doPopstateOnload: fire the popstateEvent onload (default: true)
+	 *   (default: 50)
+	 * 
+	 * - doPopstateOnload: fire the popstateEvent onload (default: false)
+	 * 
 	 * - defaultState: the initial default state of the application
-	 *	 (default: {} or if a link with class "pp-default" exists, the
-	 *	 URL of that link).
+	 *   (default: {} or if a link with class "pp-default" exists, the
+	 *   URL of that link).
+	 * 
+	 * - useXSSFilter: will make progressive-pushstate decode querystring
+	 *   variable values by default.  Set this to true only if you know 
+	 *   what you are doing, since you can inadvertantly cause XSS attacks.
+	 *   See https://vip.wordpress.com/2015/03/25/preventing-xss-in-javascript
+	 *   (default: true)
+	 * 
 	 * 
 	 */
 	me.init = function (popstateEvent, options) {
-		me.options = (options || {}); 
+		me.options = (options || {});
 		
 		// links that will update the state of the application
 		me.linkEls = document.getElementsByClassName('pp-link');
@@ -157,7 +177,7 @@ var pp = new function () {
 			if (splitLocation.length === 2) {
 				var params = queryStringToObject(splitLocation[1]);
 				
-				window.history.replaceState(params, '', window.history.location);
+				window.history.replaceState(params, '', window.location.href);
 				
 				// if there is a form and this is not
 				// a form event, let's populate the form.
@@ -173,6 +193,11 @@ var pp = new function () {
 				});
 				me.lastState = params;
 			}
+		}
+		
+		// ensure XSS Filter is on by default
+		if (me.options.useXSSFilter === undefined) {
+			me.options.useXSSFilter = true;
 		}
 	};
 	
@@ -384,7 +409,7 @@ var pp = new function () {
 			var keyVal = keyVals[i],
 				splitVal = keyVal.split('=');
 			
-			r[decodeURIComponent(splitVal[0])] = decodeURIComponent(splitVal[1]);
+			r[decodeURIComponent(splitVal[0])] = filterQueryStringValue(splitVal[1]);
 		}
 		
 		if (hashSplit.length > 1) {
@@ -393,6 +418,27 @@ var pp = new function () {
 		return r;
 	}
 	
+	function filterQueryStringValue(s) {
+		var r = decodeURIComponent(s);
+		
+		if (me.options.useXSSFilter) {
+			r = me.entify(r);
+		}
+		
+		return r;
+	}
+	
+	me.unentify = function (s) {
+		return s.replace(ampEntRe, '&').
+			replace(ltEntRe, '<').
+			replace(gtEntRe, '>');
+	};
+	
+	me.entify = function (s, options) {
+		return s.replace(ampRe, "&amp;")
+		  .replace(ltRe,"&lt;")
+		  .replace(gtRe,"&gt;");
+	};
 	/*
 	 * Takes a JavaScript object and converts it into a query string.
 	 */
@@ -417,10 +463,10 @@ var pp = new function () {
 	 * will put this into the pushstate:
 	 * 
 	 * {
-	 * 		this: '1',
-	 *		that: '2',
-	 *		other: '3',
-	 *		_ppHash: 'myLinkName'
+	 *   this: '1',
+	 *   that: '2',
+	 *   other: '3',
+	 *   _ppHash: 'myLinkName'
 	 * } 
 	 */
 	me.updatePushState = function (e, qs) {
@@ -478,10 +524,10 @@ var pp = new function () {
 	 * @param docForm -- Reference to a DOM node of the form element
 	 * @param formatOpts -- JS object of options for how to format
 	 * the return string. Supported options:
-	 *		collapseMulti: (Boolean) take values from elements that
-	 *		can return multiple values (multi-select, checkbox groups)
-	 *		and collapse into a single, comman-delimited value
-	 *		(e.g., thisVar=asdf,qwer,zxcv)
+	 * collapseMulti: (Boolean) take values from elements that
+	 * can return multiple values (multi-select, checkbox groups)
+	 * and collapse into a single, comman-delimited value
+	 * (e.g., thisVar=asdf,qwer,zxcv)
 	 * @returns query-string style String of variable-value pairs
 	 * 
 	 * Original code by Matthew Eernisse (mde@fleegix.org), March 2005
