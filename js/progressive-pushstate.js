@@ -100,17 +100,7 @@ var pp = new function () {
 				 * itself, so we store add them in the `eventNodes` array. 
 				 */
 				var formFields = formEl.elements;
-				window.console.log('formFields', formFields);
-				for (k=0; k < formFields.length; k++ ) {
-					var formField = formFields[k],
-						closestForm = formField.closest('form');
 						
-						if (closestForm !== formEl) {
-							window.console.log('Orphan field:', formField);
-							eventNodes.push(formField);
-						}
-				}
-				
 				if (events) {
 					events = events.split(spaceRe);
 					
@@ -119,14 +109,12 @@ var pp = new function () {
 					for (i=0; i<eventsLen; i++) {
 						var event = events[i];
 						
-						for (k=0; k < eventNodes.length; k++) {
-							var eventNode = eventNodes[k];
-							
-							if (event.indexOf('key') === 0) {
-								eventNode.addEventListener(events[i], me.formChangeEventDebounced);
-							} else {
-								eventNode.addEventListener(events[i], formChangeEvent);
-							}
+						
+						
+						if (event.indexOf('key') === 0) {
+							document.addEventListener(events[i], me.formChangeEventDebounced);
+						} else {
+							document.addEventListener(events[i], formChangeEvent);
 						}
 						
 					}
@@ -267,6 +255,15 @@ var pp = new function () {
 		me.lastState = state;
 	}
 	
+	function updateCheckbox (el, stateVal) {
+		// if the value is in the stateVal array, check the box
+		if (stateVal.indexOf(el.value) >= 0) {
+			el.checked = true;
+		} else {
+			el.checked = false;
+		}
+	}
+	
 	function updateForms(state) {
 		var h, i, j;
 		
@@ -307,19 +304,24 @@ var pp = new function () {
 							break;
 						case "select-multiple":
 						case "checkbox":
-							var allElementsWithName = formEl.elements[name];
+							var allElementsWithName = formEl.elements[name],
+								elsLen = allElementsWithName.length;
+							
 							stateVal=stateVal ? stateVal.split(',') : [];
-							var elsLen = allElementsWithName.length
-							for (j=0; j<elsLen; j++) {
-								var el = allElementsWithName[j];
-								
-								// if the value is in the stateVal array, check the box
-								if (stateVal.indexOf(el.value) >= 0) {
-									el.checked = true;
-								} else {
-									el.checked = false;
+							
+							/*
+							 * allElementsWithName can be an array or a single element, so
+							 * we need to check for that and apply the appropriate value.
+							 */
+							if (allElementsWithName.length) {
+								for (j=0; j<elsLen; j++) {
+									var el = allElementsWithName[j];
+									updateCheckbox(el, stateVal);
 								}
+							} else {
+								updateCheckbox(allElementsWithName, stateVal);
 							}
+							break;
 						default:
 							field.value = stateVal;
 					}
@@ -407,9 +409,30 @@ var pp = new function () {
 		
 		for (i=0; i<keyValsLen; i++) {
 			var keyVal = keyVals[i],
-				splitVal = keyVal.split('=');
+				splitVal = keyVal.split('='),
+				name = decodeURIComponent(splitVal[0]),
+				value = decodeURIComponent(splitVal[1]);
 			
+<<<<<<< HEAD
 			r[decodeURIComponent(splitVal[0])] = filterQueryStringValue(splitVal[1]);
+=======
+			/*
+			 * If the `collapseMulti` option is not used, checkboxes and select-multi's
+			 * can be put into the query string as so:
+			 * 
+			 * checkboxProp=value1&checkboxProp=value2.
+			 * 
+			 * In order to accomodate for this, we should check if the object property
+			 * corresponding to the checkbox name (in the above example 
+			 * `checkboxProp`) is already set.  If so, add the item as a comma 
+			 * delimited list.  If not, then just add the property to the object. 
+			 */
+			if (r[name]) {
+				r[name] += ',' + value;
+			} else {
+				r[name] = value;
+			}
+>>>>>>> 08c878093190aaf198b794713e3a4610c7a2b715
 		}
 		
 		if (hashSplit.length > 1) {
