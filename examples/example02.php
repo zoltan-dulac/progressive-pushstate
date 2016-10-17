@@ -4,8 +4,12 @@
 		<meta charset="utf-8">
 
 		
-		<title>Progressive Pushstate Example 2 - progressive enhanced AJAX</title>
-		<meta name="description" content="">
+		<title>
+			Progressive Pushstate Example 2 - A Responsive Header Nav Using Links 
+			and Select Form Widget.
+		</title>
+		<meta name="description" 
+			content="Progressive Pushstate Example 2 - A Responsive Header Nav Using Links and Select Form Widget.">
 		<meta name="author" content="Zoltan Hawryluk">
 
 		<meta name="viewport" content="width=device-width; initial-scale=1.0">

@@ -4,8 +4,11 @@
 		<meta charset="utf-8">
 
 		
-		<title>HTML</title>
-		<meta name="description" content="">
+		<title>
+			Progressive Pushstate Example 3 - A Search Example With History
+		</title>
+		<meta name="description" 
+			content="Progressive Pushstate Example 3 - A Search Example With History">
 		<meta name="author" content="Zoltan Hawryluk">
 
 		<meta name="viewport" content="width=device-width; initial-scale=1.0">

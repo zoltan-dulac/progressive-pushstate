@@ -13,15 +13,12 @@
 
 
 var pp = new function () {
-	var me = this,
-		orientation = screen.orientation || screen.mozOrientation || screen.msOrientation,
+	var orientation = screen.orientation || screen.mozOrientation || screen.msOrientation,
 		spaceRe = /\s+/g;
 	
-	me.linkEls = [];
-	me.formEls = [];
-	me.lastState = {};
-	me.popstateEvent = function (e, state) {};
-	me.options = {};
+	this.lastState = {};
+	this.popstateEvent = function (e, state) {};
+	this.options = {};
 	
 	/*
 	 * init(): called to initialize this object
@@ -39,29 +36,24 @@ var pp = new function () {
 	 *	 URL of that link).
 	 * 
 	 */
-	me.init = function (popstateEvent, options) {
-		me.options = (options || {}); 
+	this.init = function (popstateEvent, options) {
 		
-		// links that will update the state of the application
-		me.linkEls = document.getElementsByClassName('pp-link');
-		
-		me.formEls = document.getElementsByClassName('pp-form');
+		var formEls = document.getElementsByClassName('pp-form'),
+			formElsLen = formEls.length,
+			i, j, k;;
+			
+		this.options = (options || {}); 
 		
 		// there should only be one link with this class, which
 		// will have the default state of the app in the query string. 
-		me.defaultEl = document.getElementsByClassName('pp-default');
+		this.defaultEl = document.getElementsByClassName('pp-default');
 		
-		me.popstateEvent = popstateEvent;
+		this.popstateEvent = popstateEvent;
 		
-		var linkElsLen = me.linkEls.length,
-			formElsLen = me.formEls.length,
-			i, j, k;
 		
-		for (i=0; i<linkElsLen; i++) {
-			me.linkEls[i].addEventListener('click', linkClickEvent);
-		}
+		document.addEventListener('click', linkClickEvent.bind(this));
 		
-		me.formChangeEventDebounced = debounce(formChangeEvent, me.options.keyDebounceTime || 500);
+		this.formChangeEventDebounced = debounce(formChangeEvent, this.options.keyDebounceTime || 500);
 		
 		/*
 		 * We allow *all* forms of class `pp-form` to affect the pushState 
@@ -69,60 +61,27 @@ var pp = new function () {
 		 * so).
 		 */
 		for (j=0; j<formElsLen; j++) {
-				var formEl = me.formEls[j],
-					events = formEl.getAttribute('data-pp-events') || 'change',
-					eventNodes = [formEl];
-				
-				/*
-				 * We check all fields to see which ones are *not* a child of
-				 * the form element.  Those that aren't need to listen to the 
-				 * given events, because it won't be bubbled up to the form element
-				 * itself, so we store add them in the `eventNodes` array. 
-				 */
-				var formFields = formEl.elements;
-						
-				if (events) {
-					events = events.split(spaceRe);
-					
-					var eventsLen = events.length;
-					
-					for (i=0; i<eventsLen; i++) {
-						var event = events[i];
-						
-						
-						
-						if (event.indexOf('key') === 0) {
-							document.addEventListener(events[i], me.formChangeEventDebounced);
-						} else {
-							document.addEventListener(events[i], formChangeEvent);
-						}
-						
-					}
-				} else {
-					formEl.addEventListener('submit', formChangeEvent);
-				}
-				
-				
-				
+			var formEl = formEls[j];
+			this.initForm(formEl);
 		}
 		
-		if (me.defaultEl.length > 0) {
-			me.options.defaultState = queryStringToObject(me.defaultEl[0].href.split('?')[1]);
+		if (this.defaultEl.length > 0) {
+			this.options.defaultState = queryStringToObject(this.defaultEl[0].href.split('?')[1]);
 		}
 		
-		window.addEventListener('popstate', internalPopstateEvent);
+		window.addEventListener('popstate', internalPopstateEvent.bind(this));
 		
 		/*
 		 * allow developers to maintain scrollbar state onScroll
 		 * onResize and onorientationchange
 		 */
-		if (me.options.pushScrollState) {
+		if (this.options.pushScrollState) {
 			// We make sure we throttle scroll and resize because
 			// browsers fire these events like mad and slow the browser
 			// down.
-			me.scrollEventDebounced = debounce(scrollEvent, me.options.debounceTime || 50);
-			window.addEventListener('scroll', me.scrollEventDebounced);
-			window.addEventListener('resize', me.scrollEventDebounced);
+			this.scrollEventDebounced = debounce(scrollEvent, this.options.debounceTime || 50);
+			window.addEventListener('scroll', this.scrollEventDebounced.bind(this));
+			window.addEventListener('resize', this.scrollEventDebounced.bind(this));
 			
 			// Doing screen orientation change event handling by first
 			// checking for official W3C event handler, with an deprecated
@@ -130,16 +89,16 @@ var pp = new function () {
 			// - https://w3c.github.io/screen-orientation/
 			// - https://developer.mozilla.org/en-US/docs/Web/Events/orientationchange
 			if (orientation) {
-				orientation.addEventListener('change', me.scrollEvent);
+				orientation.addEventListener('change', this.scrollEvent.bind(this));
 			} else {
-				window.addEventListener('orientationchange', me.scrollEvent);
+				window.addEventListener('orientationchange', this.scrollEvent.bind(this));
 			}
 		}
 		
 		/*
 		 * If options.doPopstateOnload exists, run the popstateEvent.
 		 */
-		if (me.options.doPopstateOnload && window.history.replaceState) {
+		if (this.options.doPopstateOnload && window.history.replaceState) {
 			var splitLocation = location.href.split('?');
 			
 			if (splitLocation.length === 2) {
@@ -149,20 +108,52 @@ var pp = new function () {
 				
 				// if there is a form and this is not
 				// a form event, let's populate the form.
-				if (me.formEls.length !== 0) {
-					updateForms(params);
+				if (formEls.length !== 0) {
+					updateForms.bind(this)(params);
 				}
 				
-				me.popstateEvent({
+				this.popstateEvent({
 					type: 'init',
 					target: document,
 					currentTarget: document,
 					state: params
 				});
-				me.lastState = params;
+				this.lastState = params;
 			}
 		}
 	};
+	
+	this.initForm = function(formEl) {
+		var events = formEl.getAttribute('data-pp-events') || 'change',
+			eventNodes = [formEl],
+		
+		/*
+		 * We check all fields to see which ones are *not* a child of
+		 * the form element.  Those that aren't need to listen to the 
+		 * given events, because it won't be bubbled up to the form element
+		 * itself, so we store add them in the `eventNodes` array. 
+		 */
+		formFields = formEl.elements;
+				
+		if (events) {
+			events = events.split(spaceRe);
+			
+			var eventsLen = events.length;
+			
+			for (i=0; i<eventsLen; i++) {
+				var event = events[i];
+				
+				if (event.indexOf('key') === 0) {
+					document.addEventListener(events[i], this.formChangeEventDebounced.bind(this));
+				} else {
+					document.addEventListener(events[i], formChangeEvent.bind(this));
+				}
+				
+			}
+		} else {
+			formEl.addEventListener('submit', formChangeEvent.bind(this));
+		}
+	}
 	
 	/* Stolen from https://github.com/rodneyrehm/viewport-units-buggyfill/blob/master/viewport-units-buggyfill.js */
 	function debounce(func, wait) {
@@ -199,7 +190,7 @@ var pp = new function () {
 			var url = window.history.href,
 				scrollLeft = getScrollLeft(),
 				scrollTop = getScrollTop(),
-				state = me.lastState;
+				state = this.lastState;
 
 			window.history.replaceState(state, '', url);
 		}
@@ -211,23 +202,25 @@ var pp = new function () {
 	 * the event's state property.
 	 */
 	function internalPopstateEvent(e) {
-		var state;
+		var state,
+			formEls = document.getElementsByClassName('pp-form');
+		;
 		
 		// if the state is null and we have a default state, use that instead.
-		if (me.options.defaultState !== null && e.state === null) {
-			state = me.options.defaultState;
+		if (this.options.defaultState !== null && e.state === null) {
+			state = this.options.defaultState;
 		} else {
 			state = e.state;
 		}
 		
 		// if there is a form here, let's change the form values
 		// to match the query string
-		if (me.formEls.length !== 0) {
-			updateForms(state);
+		if (formEls.length !== 0) {
+			updateForms.bind(this)(state);
 		}
 		
-		me.popstateEvent(e, state);
-		me.lastState = state;
+		this.popstateEvent(e, state);
+		this.lastState = state;
 	}
 	
 	function updateCheckbox (el, stateVal) {
@@ -240,10 +233,17 @@ var pp = new function () {
 	}
 	
 	function updateForms(state) {
-		var h, i, j;
+		var formEls = document.getElementsByClassName('pp-form'),
+			h, i, j;
 		
-		for (h=0; h<me.formEls.length; h++) {
-			var formEl = me.formEls[h],
+		/* 
+		 * if state is undefined, we need to make it {} so this method knows it's
+		 * the empty state.
+		 */
+		state = state || {};
+		
+		for (h=0; h < formEls.length; h++) {
+			var formEl = formEls[h],
 				fields = formEl.elements,
 				numEl = fields.length,
 				updatedNames = {};
@@ -251,7 +251,7 @@ var pp = new function () {
 			for (i=0; i<numEl; i++) {
 				var field = fields[i],
 					name = field.name,
-					stateVal = state[name];
+					stateVal = state[name] || '';
 				
 				// if we dealt with this name already, then go to the next item in for
 				// loop.	
@@ -259,6 +259,10 @@ var pp = new function () {
 				
 					
 					switch (field.type) {
+						case "submit":
+							// we don't want to change the value of submit buttons, since
+							// that is the visible label of the button, so we break here.
+							break;
 						case "radio":
 							var allElementsWithName = formEl.elements[name],
 								elsLen = allElementsWithName.length;
@@ -314,24 +318,32 @@ var pp = new function () {
 	 * the query string into the document's popstate for the URL.
 	 */
 	function linkClickEvent(e) {
-		var target = e.currentTarget,
-			URL = target.href,
+		var target = e.target;
+		
+		if (target.nodeName !== 'A' || ! target.classList.contains('pp-link')) {
+			return;
+		}
+		
+		var URL = target.href,
 			splitURL = URL.split('?');
 			
 		if (splitURL.length === 2) {
 			var qs = splitURL[1];
 				
 			e.preventDefault();
-			me.updatePushState(e, qs);
+			this.updatePushState.bind(this)(e, qs);
 			
 		}
 	}
 	
 	function formChangeEvent(e) {
-		// Target is the event's current target, or the target's form element
-		// since Firefox (and possibly others) have an issue with keypress on 
-		// form setting the currentTarget correctly.
-		var target, qs;
+		/*
+		 * Target is the event's current target, or the target's form element
+		 * since Firefox (and possibly others) have an issue with keypress on 
+		 * form setting the currentTarget correctly.
+		 */
+		var target, qs,
+			formEls = document.getElementsByClassName('pp-form');
 		
 		if (e.type.indexOf('key') === 0) {
 			target = e.currentTarget || e.target.form;
@@ -343,15 +355,15 @@ var pp = new function () {
 			target = target.form;
 		}
 		
-		qs = me.formData2QueryString(target, {
-			collapseMulti: me.options.collapseMulti
+		qs = this.formData2QueryString(target, {
+			collapseMulti: this.options.collapseMulti
 		});
 			
-		me.updatePushState(e, qs);
+		this.updatePushState.bind(this)(e, qs);
 		
 		if (e.type === 'submit') {
-			for (var i=0; i<me.formEls.length; i++) {
-				var autoFocusEl = me.formEls[i].querySelector('input[autofocus], textarea[autofocus], select[autofocus]');
+			for (var i=0; i<formEls.length; i++) {
+				var autoFocusEl = formEls[i].querySelector('input[autofocus], textarea[autofocus], select[autofocus]');
 				
 				if (autoFocusEl) {
 					autoFocusEl.focus();
@@ -442,8 +454,9 @@ var pp = new function () {
 	 *		_ppHash: 'myLinkName'
 	 * } 
 	 */
-	me.updatePushState = function (e, qs) {
-		var target = e.currentTarget || e.target;
+	this.updatePushState = function (e, qs) {
+		var target = e.currentTarget || e.target,
+			formEls = document.getElementsByClassName('pp-form');
 		
 		switch (e.type) {
 			
@@ -456,10 +469,10 @@ var pp = new function () {
 		var params = queryStringToObject(qs);
 		
 		/* Insert the how many pages in history this page is */
-		if (me.lastState._ppPageNum === undefined && e.state === undefined) {
+		if (this.lastState._ppPageNum === undefined && e.state === undefined) {
 			params._ppPageNum = 0;
 		} else if (e.type !== 'popstate') {
-			params._ppPageNum = me.lastState._ppPageNum + 1;
+			params._ppPageNum = this.lastState._ppPageNum + 1;
 		}
 		
 		if (window.history.pushState) {
@@ -468,14 +481,16 @@ var pp = new function () {
 			
 			e.state = params;
 			
-			// if there is a form and this is not
-			// a form event, let's populate the form.
-			if (me.formEls.length !== 0 && target.nodeName !== 'FORM') {
-				updateForms(params);
+			/* 
+			 * If there is a form and this is not
+			 * a form event, let's populate the form.
+			 */
+			if (formEls.length !== 0 && target.nodeName !== 'FORM') {
+				updateForms.bind(this)(params);
 			}
 			
-			me.popstateEvent(e, params);
-			me.lastState = params;
+			this.popstateEvent(e, params);
+			this.lastState = params;
 			
 		}
 	};
@@ -484,7 +499,7 @@ var pp = new function () {
 	 * This will be used in the future to compare two states to see if 
 	 * they are equal.
 	 */
-	me.sortObject = function(obj) {
+	this.sortObject = function(obj) {
 		return Object.keys(obj).sort().reduce(function (result, key) {
 			result[key] = obj[key];
 			return result;
@@ -510,7 +525,7 @@ var pp = new function () {
 	 *
 	*/
 
-	me.formData2QueryString = function (docForm, formatOpts) {	
+	this.formData2QueryString = function (docForm, formatOpts) {	
 		var opts = formatOpts || {},
 			str = '',
 			formElem,
@@ -573,10 +588,11 @@ var pp = new function () {
 							lastElemName = formElem.name;
 						}
 						break;
-					// Text fields, hidden form elements, passwords, textareas, single
-					// select elements, range, date and color.  Note that we use 
-					// default here in order to catch
-					// others that may not be defined yet.
+					/*
+					 * Text fields, hidden form elements, passwords, textareas, single
+					 * select elements, range, date and color.  Note that we use 
+					 * default here in order to catch others that may not be defined yet.
+					 */
 					default:
 						str += formElem.name + '=' + encodeURIComponent(formElem.value) + '&';
 						break;
@@ -590,7 +606,7 @@ var pp = new function () {
 
 };
 
-// element-closest | CC0-1.0 | github.com/jonathantneal/closest
+// element-closest | CC0-1.0 | http://github.com/jonathantneal/closest
 
 if (typeof Element.prototype.matches !== 'function') {
 	Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.webkitMatchesSelector || function matches(selector) {

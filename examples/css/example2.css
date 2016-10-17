@@ -11,6 +11,8 @@ body {
 	background: #000;
 	color: #fff;
 	margin: 0;
+	font-family: "PressStart2P", sans-serif;
+	position: relative;
 }
 
 header {
@@ -24,10 +26,7 @@ header, nav {
 	z-index: 1;
 }
 
-body {
-	font-family: "PressStart2P", sans-serif;
-	position: relative;
-}
+	
 header h1 {
 	font-size: 30px;
 	text-align: center;
@@ -37,6 +36,10 @@ header h1 {
 
 header h1 small {
 	text-transform: none;
+}
+
+.pp-form {
+	display: none;
 }
 
 nav {
@@ -53,16 +56,11 @@ nav {
 	z-index: 10;
 }
 
-.pp-form {
-	display: none;
-}
-
-
 nav ul li {
 	display: inline-block;
 }
 
-nav ul li a {
+nav ul a {
 	color: #000;
 	text-decoration: none;
 	padding: 0 20px;
@@ -87,9 +85,9 @@ article h2 {
 	padding-top: 15vw;
 	
 	text-shadow: 0 0 10px  #ffffff, 0 0 20px  #ffffff,
-							0 0 30px  #ffffff, 0 0 40px  #ff00de,
-							0 0 70px  #ff00de, 0 0 80px  #ff00de,
-							0 0 100px #ff00de, 0 0 150px #ff00de;
+	             0 0 30px  #ffffff, 0 0 40px  #ff00de,
+	             0 0 70px  #ff00de, 0 0 80px  #ff00de,
+	             0 0 100px #ff00de, 0 0 150px #ff00de;
 }
 
 
@@ -179,104 +177,6 @@ article a {
   transform: translateZ(-1px)  translateY(10vw) scale(2);
 }
 
-/*
- * For fixedsticky polyfill.
- * https://github.com/filamentgroup/fixed-sticky
- */
-.fixedsticky {
-	position: -webkit-sticky;
-	position: -moz-sticky;
-	position: -ms-sticky;
-	position: -o-sticky;
-	position: sticky;
-}
-/* When position: sticky is supported but native behavior is ignored */
-.fixedsticky-withoutfixedfixed .fixedsticky-off,
-.fixed-supported .fixedsticky-off {
-	position: static;
-}
-.fixedsticky-withoutfixedfixed .fixedsticky-on,
-.fixed-supported .fixedsticky-on {
-	position: fixed;
-}
-.fixedsticky-dummy {
-	display: none;
-}
-.fixedsticky-on + .fixedsticky-dummy {
-	display: block;
-}
-
-/*
- * These animations were totally ripped off from Lucas Bebber
- * http://codepen.io/lbebber/pen/XJRdrV/
- */
-@keyframes flicker {
-  0% {
-    opacity: 0.84688;
-  }
-  5% {
-    opacity: 0.83625;
-  }
-  10% {
-    opacity: 0.97426;
-  }
-  15% {
-    opacity: 0.90222;
-  }
-  20% {
-    opacity: 0.83377;
-  }
-  25% {
-    opacity: 0.95831;
-  }
-  30% {
-    opacity: 0.86218;
-  }
-  35% {
-    opacity: 0.87985;
-  }
-  40% {
-    opacity: 0.8048;
-  }
-  45% {
-    opacity: 0.89521;
-  }
-  50% {
-    opacity: 0.99684;
-  }
-  55% {
-    opacity: 0.8347;
-  }
-  60% {
-    opacity: 0.95669;
-  }
-  65% {
-    opacity: 0.82683;
-  }
-  70% {
-    opacity: 0.89331;
-  }
-  75% {
-    opacity: 0.8511;
-  }
-  80% {
-    opacity: 0.88265;
-  }
-  85% {
-    opacity: 0.88624;
-  }
-  90% {
-    opacity: 0.96424;
-  }
-  95% {
-    opacity: 0.81607;
-  }
-  100% {
-    opacity: 0.81527;
-  }
-}
-
-
 @keyframes turn-on {
   0% {
     transform: scale(1, 0.8) translate3d(0, 0, 0);
@@ -330,7 +230,6 @@ article a {
     filter: brightness(50);
   }
 }
-
 
 /* tablet */
 @media only screen and (max-width: 768px) {
