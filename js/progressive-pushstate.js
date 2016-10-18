@@ -13,12 +13,13 @@
 
 
 var pp = new function () {
-	var orientation = screen.orientation || screen.mozOrientation || screen.msOrientation,
+	var me = this,
+		orientation = screen.orientation || screen.mozOrientation || screen.msOrientation,
 		spaceRe = /\s+/g;
 	
-	this.lastState = {};
-	this.popstateEvent = function (e, state) {};
-	this.options = {};
+	me.lastState = {};
+	me.popstateEvent = function (e, state) {};
+	me.options = {};
 	
 	/*
 	 * init(): called to initialize this object
@@ -36,24 +37,24 @@ var pp = new function () {
 	 *	 URL of that link).
 	 * 
 	 */
-	this.init = function (popstateEvent, options) {
+	me.init = function (popstateEvent, options) {
 		
 		var formEls = document.getElementsByClassName('pp-form'),
 			formElsLen = formEls.length,
 			i, j, k;;
 			
-		this.options = (options || {}); 
+		me.options = (options || {}); 
 		
 		// there should only be one link with this class, which
 		// will have the default state of the app in the query string. 
-		this.defaultEl = document.getElementsByClassName('pp-default');
+		me.defaultEl = document.getElementsByClassName('pp-default');
 		
-		this.popstateEvent = popstateEvent;
+		me.popstateEvent = popstateEvent;
 		
 		
-		document.addEventListener('click', linkClickEvent.bind(this));
+		document.addEventListener('click', linkClickEvent);
 		
-		this.formChangeEventDebounced = debounce(formChangeEvent, this.options.keyDebounceTime || 500);
+		me.formChangeEventDebounced = debounce(formChangeEvent, me.options.keyDebounceTime || 500);
 		
 		/*
 		 * We allow *all* forms of class `pp-form` to affect the pushState 
@@ -62,26 +63,26 @@ var pp = new function () {
 		 */
 		for (j=0; j<formElsLen; j++) {
 			var formEl = formEls[j];
-			this.initForm(formEl);
+			me.initForm(formEl);
 		}
 		
-		if (this.defaultEl.length > 0) {
-			this.options.defaultState = queryStringToObject(this.defaultEl[0].href.split('?')[1]);
+		if (me.defaultEl.length > 0) {
+			me.options.defaultState = queryStringToObject(me.defaultEl[0].href.split('?')[1]);
 		}
 		
-		window.addEventListener('popstate', internalPopstateEvent.bind(this));
+		window.addEventListener('popstate', internalPopstateEvent);
 		
 		/*
 		 * allow developers to maintain scrollbar state onScroll
 		 * onResize and onorientationchange
 		 */
-		if (this.options.pushScrollState) {
+		if (me.options.pushScrollState) {
 			// We make sure we throttle scroll and resize because
 			// browsers fire these events like mad and slow the browser
 			// down.
-			this.scrollEventDebounced = debounce(scrollEvent, this.options.debounceTime || 50);
-			window.addEventListener('scroll', this.scrollEventDebounced.bind(this));
-			window.addEventListener('resize', this.scrollEventDebounced.bind(this));
+			me.scrollEventDebounced = debounce(scrollEvent, me.options.debounceTime || 50);
+			window.addEventListener('scroll', me.scrollEventDebounced);
+			window.addEventListener('resize', me.scrollEventDebounced);
 			
 			// Doing screen orientation change event handling by first
 			// checking for official W3C event handler, with an deprecated
@@ -89,16 +90,16 @@ var pp = new function () {
 			// - https://w3c.github.io/screen-orientation/
 			// - https://developer.mozilla.org/en-US/docs/Web/Events/orientationchange
 			if (orientation) {
-				orientation.addEventListener('change', this.scrollEvent.bind(this));
+				orientation.addEventListener('change', me.scrollEvent);
 			} else {
-				window.addEventListener('orientationchange', this.scrollEvent.bind(this));
+				window.addEventListener('orientationchange', me.scrollEvent);
 			}
 		}
 		
 		/*
 		 * If options.doPopstateOnload exists, run the popstateEvent.
 		 */
-		if (this.options.doPopstateOnload && window.history.replaceState) {
+		if (me.options.doPopstateOnload && window.history.replaceState) {
 			var splitLocation = location.href.split('?');
 			
 			if (splitLocation.length === 2) {
@@ -109,21 +110,21 @@ var pp = new function () {
 				// if there is a form and this is not
 				// a form event, let's populate the form.
 				if (formEls.length !== 0) {
-					updateForms.bind(this)(params);
+					updateForms(params);
 				}
 				
-				this.popstateEvent({
+				me.popstateEvent({
 					type: 'init',
 					target: document,
 					currentTarget: document,
 					state: params
 				});
-				this.lastState = params;
+				me.lastState = params;
 			}
 		}
 	};
 	
-	this.initForm = function(formEl) {
+	me.initForm = function(formEl) {
 		var events = formEl.getAttribute('data-pp-events') || 'change',
 			eventNodes = [formEl],
 		
@@ -144,14 +145,14 @@ var pp = new function () {
 				var event = events[i];
 				
 				if (event.indexOf('key') === 0) {
-					document.addEventListener(events[i], this.formChangeEventDebounced.bind(this));
+					document.addEventListener(events[i], me.formChangeEventDebounced);
 				} else {
-					document.addEventListener(events[i], formChangeEvent.bind(this));
+					document.addEventListener(events[i], formChangeEvent);
 				}
 				
 			}
 		} else {
-			formEl.addEventListener('submit', formChangeEvent.bind(this));
+			formEl.addEventListener('submit', formChangeEvent);
 		}
 	}
 	
@@ -190,7 +191,7 @@ var pp = new function () {
 			var url = window.history.href,
 				scrollLeft = getScrollLeft(),
 				scrollTop = getScrollTop(),
-				state = this.lastState;
+				state = me.lastState;
 
 			window.history.replaceState(state, '', url);
 		}
@@ -207,8 +208,8 @@ var pp = new function () {
 		;
 		
 		// if the state is null and we have a default state, use that instead.
-		if (this.options.defaultState !== null && e.state === null) {
-			state = this.options.defaultState;
+		if (me.options.defaultState !== null && e.state === null) {
+			state = me.options.defaultState;
 		} else {
 			state = e.state;
 		}
@@ -216,20 +217,26 @@ var pp = new function () {
 		// if there is a form here, let's change the form values
 		// to match the query string
 		if (formEls.length !== 0) {
-			updateForms.bind(this)(state);
+			updateForms(state);
 		}
 		
-		this.popstateEvent(e, state);
-		this.lastState = state;
+		me.popstateEvent(e, state);
+		me.lastState = state;
 	}
 	
-	function updateCheckbox (el, stateVal) {
-		// if the value is in the stateVal array, check the box
-		if (stateVal.indexOf(el.value) >= 0) {
-			el.checked = true;
-		} else {
-			el.checked = false;
+	function updateCheckbox (el, stateValues) {
+		var i, stateValue, checked = false;
+		
+		for (i=0; i<stateValues.length; i++) {
+			stateValue = stateValues[i];
+			
+			// if the value is in the stateVal array, check the box
+			if (stateValue === el.value) {
+				checked = true;
+			} 
 		}
+		
+		el.checked = checked;
 	}
 	
 	function updateForms(state) {
@@ -286,7 +293,10 @@ var pp = new function () {
 							var allElementsWithName = formEl.elements[name],
 								elsLen = allElementsWithName.length;
 							
-							stateVal=stateVal ? stateVal.split(',') : [];
+							// if stateVal isn't an array, make it one.
+							if (typeof stateVal !== 'object') {
+								stateVal = [stateVal];
+							} 
 							
 							/*
 							 * allElementsWithName can be an array or a single element, so
@@ -331,7 +341,7 @@ var pp = new function () {
 			var qs = splitURL[1];
 				
 			e.preventDefault();
-			this.updatePushState.bind(this)(e, qs);
+			me.updatePushState(e, qs);
 			
 		}
 	}
@@ -355,11 +365,11 @@ var pp = new function () {
 			target = target.form;
 		}
 		
-		qs = this.formData2QueryString(target, {
-			collapseMulti: this.options.collapseMulti
+		qs = me.formData2QueryString(target, {
+			collapseMulti: me.options.collapseMulti
 		});
 			
-		this.updatePushState.bind(this)(e, qs);
+		me.updatePushState(e, qs);
 		
 		if (e.type === 'submit') {
 			for (var i=0; i<formEls.length; i++) {
@@ -390,15 +400,16 @@ var pp = new function () {
 	 */
 	function queryStringToObject(qs) {
 		var hashSplit = qs.split('#'),
-			keyVals = hashSplit[0].split('&'),
-			keyValsLen = keyVals.length,
-			i, r = {};
+			qsFrags = hashSplit[0].split('&'),
+			qsFragsLen = qsFrags.length,
+			i, j, r = {};
 		
-		for (i=0; i<keyValsLen; i++) {
-			var keyVal = keyVals[i],
-				splitVal = keyVal.split('='),
-				name = decodeURIComponent(splitVal[0]),
-				value = decodeURIComponent(splitVal[1]);
+		for (i=0; i<qsFragsLen; i++) {
+			var qsFrag = qsFrags[i],
+				splitFrag = qsFrag.split('='),
+				name = decodeURIComponent(splitFrag[0]),
+				rawValue = splitFrag[1],
+				oldValue = r[name];
 			
 			/*
 			 * If the `collapseMulti` option is not used, checkboxes and select-multi's
@@ -408,31 +419,97 @@ var pp = new function () {
 			 * 
 			 * In order to accomodate for this, we should check if the object property
 			 * corresponding to the checkbox name (in the above example 
-			 * `checkboxProp`) is already set.  If so, add the item as a comma 
-			 * delimited list.  If not, then just add the property to the object. 
+			 * `checkboxProp`) is already set.  If so, we make that property into 
+			 * an array with the old and new values in it. If not, then just add the
+			 * property to the object. 
 			 */
-			if (r[name]) {
-				r[name] += ',' + value;
+			if (me.options.collapseMulti) {
+				var splitValue = rawValue.split(',');
+				
+				if (splitValue.length > 1) {
+					for (j=0; j<splitValue.length; j++) {
+						splitValue[j] = decodeURIComponent(splitValue[j]);
+					}
+					r[name] = splitValue;
+				} else {
+					r[name] = decodeURIComponent(rawValue);
+				}
+				
 			} else {
-				r[name] = value;
+				var decodedValue = decodeURIComponent(rawValue);
+				
+				if (oldValue) {
+					switch (typeof oldValue) {
+						case 'string':
+							r[name] = [oldValue, decodedValue];
+							break;
+						case 'object':
+							r[name].push(decodedValue);
+							break;
+						default:
+							r[name] = decodedValue;
+					}
+					r[name] += ',' + decodedValue;
+				} else {
+					r[name] = decodedValue;
+				}
+				
 			}
 		}
 		
 		if (hashSplit.length > 1) {
 			r._ppHash = hashSplit[1];
 		}
+		
+		window.console.log('queryStringToObject: ', r);
 		return r;
-	}
+	};
 	
 	/*
 	 * Takes a JavaScript object and converts it into a query string.
 	 */
 	function objectToQueryString(obj) {
-		var i, sb = [];
+		var i, j, sb = [],
+			name = encodeURIComponent(i),
+			value = obj[i];
+		
 		
 		for (i in obj) {
-			sb.push(encodeURIComponent(i) + '=' + encodeURIComponent(obj[i]));
+			/*
+			 * If the value is an array, then this is a multi-value form element 
+			 * (i.e. multi-select or checkboxes).  
+			 */
+			if (typeof value === 'object') {
+				
+				/*
+				 * If this is a collapseMulti form, then we should join all the values
+				 * with a ',' in the URL.
+				 */
+				if (me.options.collapseMulti) {
+					for (j=0; j<value.length; j++) {
+						value[j] = encodeURIComponent(value[j]);
+					}
+					
+					value = value.join(',');
+					sb.push(name + '=' + value);
+				
+				/*
+				 * Otherwise, we just add each of the values one at a time in the 
+				 * query string.
+				 */
+				} else {
+					for (j=0; j<value.length; j++) {
+						sb.push(name + '=' + encodeURIComponent(obj[j]));
+					}
+				}
 			
+			/*
+			 * If we get here, the value is assumed to be a string, so we just add
+			 * it to the query string.
+			 */
+			} else {
+				sb.push(name + '=' + encodeURIComponent(obj[i]));
+			}
 		}
 		
 		return sb.join('&');
@@ -454,7 +531,7 @@ var pp = new function () {
 	 *		_ppHash: 'myLinkName'
 	 * } 
 	 */
-	this.updatePushState = function (e, qs) {
+	me.updatePushState = function (e, qs) {
 		var target = e.currentTarget || e.target,
 			formEls = document.getElementsByClassName('pp-form');
 		
@@ -469,10 +546,10 @@ var pp = new function () {
 		var params = queryStringToObject(qs);
 		
 		/* Insert the how many pages in history this page is */
-		if (this.lastState._ppPageNum === undefined && e.state === undefined) {
+		if (me.lastState._ppPageNum === undefined && e.state === undefined) {
 			params._ppPageNum = 0;
 		} else if (e.type !== 'popstate') {
-			params._ppPageNum = this.lastState._ppPageNum + 1;
+			params._ppPageNum = me.lastState._ppPageNum + 1;
 		}
 		
 		if (window.history.pushState) {
@@ -486,11 +563,11 @@ var pp = new function () {
 			 * a form event, let's populate the form.
 			 */
 			if (formEls.length !== 0 && target.nodeName !== 'FORM') {
-				updateForms.bind(this)(params);
+				updateForms(params);
 			}
 			
-			this.popstateEvent(e, params);
-			this.lastState = params;
+			me.popstateEvent(e, params);
+			me.lastState = params;
 			
 		}
 	};
@@ -499,7 +576,7 @@ var pp = new function () {
 	 * This will be used in the future to compare two states to see if 
 	 * they are equal.
 	 */
-	this.sortObject = function(obj) {
+	me.sortObject = function(obj) {
 		return Object.keys(obj).sort().reduce(function (result, key) {
 			result[key] = obj[key];
 			return result;
@@ -525,7 +602,7 @@ var pp = new function () {
 	 *
 	*/
 
-	this.formData2QueryString = function (docForm, formatOpts) {	
+	me.formData2QueryString = function (docForm, formatOpts) {	
 		var opts = formatOpts || {},
 			str = '',
 			formElem,
