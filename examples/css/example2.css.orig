@@ -26,10 +26,14 @@ header, nav {
 	z-index: 1;
 }
 
+<<<<<<< HEAD
 body {
-	font-family: "PressStart2P", sans-serif;
+	font-family: "PressStart2P", monospace;
 	position: relative;
 }
+=======
+	
+>>>>>>> 5ed26b32d32f6b0067034a7d4f4a28b078d1271a
 header h1 {
 	font-size: 30px;
 	text-align: center;
@@ -90,8 +94,10 @@ article h2 {
 	 * by 4 seconds (!).  Want to investigate why.
 	 */
 	text-shadow: 0 0 10px  #ffffff, 0 0 20px  #ffffff,
+<<<<<<< HEAD
 							0 0 30px  #ffffff, 0 0 40px  #ff00de,
-							0 0 70px  #ff00de, 0 0 80px  #ff00de;
+							0 0 70px  #ff00de, 0 0 80px  #ff00de; /*,
+							0 0 100px #ff00de, 0 0 150px #ff00de; */
 }
 
 article h2,
@@ -110,6 +116,11 @@ article h2,
 	text-shadow: 0 0 5px  rgba(255, 255, 255, 0.5), 0 0 10px  rgba(255, 255, 255, 0.5),
 							0 0 15px  rgba(255, 255, 255, 0.5), 0 0 20px  rgba(255, 0, 222, 0.5),
 							0 0 35px  rgba(255, 0, 222, 0.5), 0 0 40px  rgba(255, 0, 222, 0.5);
+=======
+	             0 0 30px  #ffffff, 0 0 40px  #ff00de,
+	             0 0 70px  #ff00de, 0 0 80px  #ff00de,
+	             0 0 100px #ff00de, 0 0 150px #ff00de;
+>>>>>>> 5ed26b32d32f6b0067034a7d4f4a28b078d1271a
 }
 
 
@@ -204,6 +215,7 @@ form {
 	margin: 7px 0;
 }
 
+<<<<<<< HEAD
 
 form:before {
 	content: "☰";
@@ -226,6 +238,33 @@ select {
 	font-size: 12px;
 }	
 
+
+/*
+ * For fixedsticky polyfill.
+ * https://github.com/filamentgroup/fixed-sticky
+ */
+.fixedsticky {
+	position: -webkit-sticky;
+	position: -moz-sticky;
+	position: -ms-sticky;
+	position: -o-sticky;
+	position: sticky;
+}
+/* When position: sticky is supported but native behavior is ignored */
+.fixedsticky-withoutfixedfixed .fixedsticky-off,
+.fixed-supported .fixedsticky-off {
+	position: static;
+}
+.fixedsticky-withoutfixedfixed .fixedsticky-on,
+.fixed-supported .fixedsticky-on {
+	position: fixed;
+}
+.fixedsticky-dummy {
+	display: none;
+}
+.fixedsticky-on + .fixedsticky-dummy {
+	display: block;
+}
 
 /*
  * These animations were totally ripped off from Lucas Bebber
@@ -298,6 +337,8 @@ select {
 }
 
 
+=======
+>>>>>>> 5ed26b32d32f6b0067034a7d4f4a28b078d1271a
 @keyframes turn-on {
   0% {
     transform: scale(1, 0.8) translate3d(0, 0, 0);

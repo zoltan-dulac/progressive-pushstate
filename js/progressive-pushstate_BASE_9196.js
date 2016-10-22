@@ -8,26 +8,17 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *	 http://www.apache.org/licenses/LICENSE-2.0
  ********************************************************/
 
 
 var pp = new function () {
 	var me = this,
 		orientation = screen.orientation || screen.mozOrientation || screen.msOrientation,
-		spaceRe = /\s+/g,
-		
-		// Needed by entify()
-		ampRe = /&/g,
-		ltRe = /</g,
-		gtRe = />/g,
-		
-		// Needed by unentify()
-		ampEntRe = /&amp;/g,
-		ltEntRe = /&lt;/g,
-		rtEntRe = /&gt;/g;
-
+		spaceRe = /\s+/g;
 	
+	me.linkEls = [];
+	me.formEls = [];
 	me.lastState = {};
 	me.popstateEvent = function (e, state) {};
 	me.options = {};
@@ -39,32 +30,22 @@ var pp = new function () {
 	 * options: options to configure this object.	Values can be:
 	 * 
 	 * - pushScrollState: enables the application to keep track of
-	 *   scrollbar position in the app. (default: false)
+	 *	 scrollbar position in the app. (default: false)
 	 * - debounceTime: sets the debounce time for resize/scroll events
-	 *   (default: 50)
-	 * 
-	 * - doPopstateOnload: fire the popstateEvent onload (default: false)
-	 * 
+	 *	 (default: 50)
+	 * - doPopstateOnload: fire the popstateEvent onload (default: true)
 	 * - defaultState: the initial default state of the application
-	 *   (default: {} or if a link with class "pp-default" exists, the
-	 *   URL of that link).
-	 * 
-	 * - useXSSFilter: will make progressive-pushstate decode querystring
-	 *   variable values by default.  Set this to true only if you know 
-	 *   what you are doing, since you can inadvertantly cause XSS attacks.
-	 *   See https://vip.wordpress.com/2015/03/25/preventing-xss-in-javascript
-	 *   (default: true)
-	 * 
+	 *	 (default: {} or if a link with class "pp-default" exists, the
+	 *	 URL of that link).
 	 * 
 	 */
 	me.init = function (popstateEvent, options) {
 		me.options = (options || {}); 
 		
-		var formEls = document.getElementsByClassName('pp-form'),
-			formElsLen = formEls.length,
-			i, j, k;;
-			
-		me.options = (options || {}); 
+		// links that will update the state of the application
+		me.linkEls = document.getElementsByClassName('pp-link');
+		
+		me.formEls = document.getElementsByClassName('pp-form');
 		
 		// there should only be one link with this class, which
 		// will have the default state of the app in the query string. 
@@ -72,8 +53,13 @@ var pp = new function () {
 		
 		me.popstateEvent = popstateEvent;
 		
+		var linkElsLen = me.linkEls.length,
+			formElsLen = me.formEls.length,
+			i, j, k;
 		
-		document.addEventListener('click', linkClickEvent);
+		for (i=0; i<linkElsLen; i++) {
+			me.linkEls[i].addEventListener('click', linkClickEvent);
+		}
 		
 		me.formChangeEventDebounced = debounce(formChangeEvent, me.options.keyDebounceTime || 500);
 		
@@ -83,8 +69,41 @@ var pp = new function () {
 		 * so).
 		 */
 		for (j=0; j<formElsLen; j++) {
-			var formEl = formEls[j];
-			me.initForm(formEl);
+				var formEl = me.formEls[j],
+					events = formEl.getAttribute('data-pp-events') || 'change',
+					eventNodes = [formEl];
+				
+				/*
+				 * We check all fields to see which ones are *not* a child of
+				 * the form element.  Those that aren't need to listen to the 
+				 * given events, because it won't be bubbled up to the form element
+				 * itself, so we store add them in the `eventNodes` array. 
+				 */
+				var formFields = formEl.elements;
+						
+				if (events) {
+					events = events.split(spaceRe);
+					
+					var eventsLen = events.length;
+					
+					for (i=0; i<eventsLen; i++) {
+						var event = events[i];
+						
+						
+						
+						if (event.indexOf('key') === 0) {
+							document.addEventListener(events[i], me.formChangeEventDebounced);
+						} else {
+							document.addEventListener(events[i], formChangeEvent);
+						}
+						
+					}
+				} else {
+					formEl.addEventListener('submit', formChangeEvent);
+				}
+				
+				
+				
 		}
 		
 		if (me.defaultEl.length > 0) {
@@ -126,11 +145,11 @@ var pp = new function () {
 			if (splitLocation.length === 2) {
 				var params = queryStringToObject(splitLocation[1]);
 				
-				window.history.replaceState(params, '', window.location.href);
+				window.history.replaceState(params, '', window.history.location);
 				
 				// if there is a form and this is not
 				// a form event, let's populate the form.
-				if (formEls.length !== 0) {
+				if (me.formEls.length !== 0) {
 					updateForms(params);
 				}
 				
@@ -143,44 +162,7 @@ var pp = new function () {
 				me.lastState = params;
 			}
 		}
-		
-		// ensure XSS Filter is on by default
-		if (me.options.useXSSFilter === undefined) {
-			me.options.useXSSFilter = true;
-		}
 	};
-	
-	me.initForm = function(formEl) {
-		var events = formEl.getAttribute('data-pp-events') || 'change',
-			eventNodes = [formEl],
-		
-		/*
-		 * We check all fields to see which ones are *not* a child of
-		 * the form element.  Those that aren't need to listen to the 
-		 * given events, because it won't be bubbled up to the form element
-		 * itself, so we store add them in the `eventNodes` array. 
-		 */
-		formFields = formEl.elements;
-				
-		if (events) {
-			events = events.split(spaceRe);
-			
-			var eventsLen = events.length;
-			
-			for (i=0; i<eventsLen; i++) {
-				var event = events[i];
-				
-				if (event.indexOf('key') === 0) {
-					document.addEventListener(events[i], me.formChangeEventDebounced);
-				} else {
-					document.addEventListener(events[i], formChangeEvent);
-				}
-				
-			}
-		} else {
-			formEl.addEventListener('submit', formChangeEvent);
-		}
-	}
 	
 	/* Stolen from https://github.com/rodneyrehm/viewport-units-buggyfill/blob/master/viewport-units-buggyfill.js */
 	function debounce(func, wait) {
@@ -229,9 +211,7 @@ var pp = new function () {
 	 * the event's state property.
 	 */
 	function internalPopstateEvent(e) {
-		var state,
-			formEls = document.getElementsByClassName('pp-form');
-		;
+		var state;
 		
 		// if the state is null and we have a default state, use that instead.
 		if (me.options.defaultState !== null && e.state === null) {
@@ -242,7 +222,7 @@ var pp = new function () {
 		
 		// if there is a form here, let's change the form values
 		// to match the query string
-		if (formEls.length !== 0) {
+		if (me.formEls.length !== 0) {
 			updateForms(state);
 		}
 		
@@ -250,33 +230,20 @@ var pp = new function () {
 		me.lastState = state;
 	}
 	
-	function updateCheckbox (el, stateValues) {
-		var i, stateValue, checked = false;
-		
-		for (i=0; i<stateValues.length; i++) {
-			stateValue = stateValues[i];
-			
-			// if the value is in the stateVal array, check the box
-			if (stateValue === el.value) {
-				checked = true;
-			} 
+	function updateCheckbox (el, stateVal) {
+		// if the value is in the stateVal array, check the box
+		if (stateVal.indexOf(el.value) >= 0) {
+			el.checked = true;
+		} else {
+			el.checked = false;
 		}
-		
-		el.checked = checked;
 	}
 	
 	function updateForms(state) {
-		var formEls = document.getElementsByClassName('pp-form'),
-			h, i, j;
+		var h, i, j;
 		
-		/* 
-		 * if state is undefined, we need to make it {} so this method knows it's
-		 * the empty state.
-		 */
-		state = state || {};
-		
-		for (h=0; h < formEls.length; h++) {
-			var formEl = formEls[h],
+		for (h=0; h<me.formEls.length; h++) {
+			var formEl = me.formEls[h],
 				fields = formEl.elements,
 				numEl = fields.length,
 				updatedNames = {};
@@ -284,7 +251,7 @@ var pp = new function () {
 			for (i=0; i<numEl; i++) {
 				var field = fields[i],
 					name = field.name,
-					stateVal = state[name] || '';
+					stateVal = state[name];
 				
 				// if we dealt with this name already, then go to the next item in for
 				// loop.	
@@ -292,10 +259,6 @@ var pp = new function () {
 				
 					
 					switch (field.type) {
-						case "submit":
-							// we don't want to change the value of submit buttons, since
-							// that is the visible label of the button, so we break here.
-							break;
 						case "radio":
 							var allElementsWithName = formEl.elements[name],
 								elsLen = allElementsWithName.length;
@@ -319,10 +282,7 @@ var pp = new function () {
 							var allElementsWithName = formEl.elements[name],
 								elsLen = allElementsWithName.length;
 							
-							// if stateVal isn't an array, make it one.
-							if (typeof stateVal !== 'object') {
-								stateVal = [stateVal];
-							} 
+							stateVal=stateVal ? stateVal.split(',') : [];
 							
 							/*
 							 * allElementsWithName can be an array or a single element, so
@@ -354,13 +314,8 @@ var pp = new function () {
 	 * the query string into the document's popstate for the URL.
 	 */
 	function linkClickEvent(e) {
-		var target = e.target;
-		
-		if (target.nodeName !== 'A' || ! target.classList.contains('pp-link')) {
-			return;
-		}
-		
-		var URL = target.href,
+		var target = e.currentTarget,
+			URL = target.href,
 			splitURL = URL.split('?');
 			
 		if (splitURL.length === 2) {
@@ -373,13 +328,10 @@ var pp = new function () {
 	}
 	
 	function formChangeEvent(e) {
-		/*
-		 * Target is the event's current target, or the target's form element
-		 * since Firefox (and possibly others) have an issue with keypress on 
-		 * form setting the currentTarget correctly.
-		 */
-		var target, qs,
-			formEls = document.getElementsByClassName('pp-form');
+		// Target is the event's current target, or the target's form element
+		// since Firefox (and possibly others) have an issue with keypress on 
+		// form setting the currentTarget correctly.
+		var target, qs;
 		
 		if (e.type.indexOf('key') === 0) {
 			target = e.currentTarget || e.target.form;
@@ -398,8 +350,8 @@ var pp = new function () {
 		me.updatePushState(e, qs);
 		
 		if (e.type === 'submit') {
-			for (var i=0; i<formEls.length; i++) {
-				var autoFocusEl = formEls[i].querySelector('input[autofocus], textarea[autofocus], select[autofocus]');
+			for (var i=0; i<me.formEls.length; i++) {
+				var autoFocusEl = me.formEls[i].querySelector('input[autofocus], textarea[autofocus], select[autofocus]');
 				
 				if (autoFocusEl) {
 					autoFocusEl.focus();
@@ -426,18 +378,16 @@ var pp = new function () {
 	 */
 	function queryStringToObject(qs) {
 		var hashSplit = qs.split('#'),
-			qsFrags = hashSplit[0].split('&'),
-			qsFragsLen = qsFrags.length,
-			i, j, r = {};
+			keyVals = hashSplit[0].split('&'),
+			keyValsLen = keyVals.length,
+			i, r = {};
 		
-		for (i=0; i<qsFragsLen; i++) {
-			var qsFrag = qsFrags[i],
-				splitFrag = qsFrag.split('='),
-				name = decodeURIComponent(splitFrag[0]),
-				rawValue = splitFrag[1],
-				oldValue = r[name];
+		for (i=0; i<keyValsLen; i++) {
+			var keyVal = keyVals[i],
+				splitVal = keyVal.split('='),
+				name = decodeURIComponent(splitVal[0]),
+				value = decodeURIComponent(splitVal[1]);
 			
-
 			/*
 			 * If the `collapseMulti` option is not used, checkboxes and select-multi's
 			 * can be put into the query string as so:
@@ -446,118 +396,31 @@ var pp = new function () {
 			 * 
 			 * In order to accomodate for this, we should check if the object property
 			 * corresponding to the checkbox name (in the above example 
-			 * `checkboxProp`) is already set.  If so, we make that property into 
-			 * an array with the old and new values in it. If not, then just add the
-			 * property to the object. 
+			 * `checkboxProp`) is already set.  If so, add the item as a comma 
+			 * delimited list.  If not, then just add the property to the object. 
 			 */
-			if (me.options.collapseMulti) {
-				var splitValue = rawValue.split(',');
-				
-				if (splitValue.length > 1) {
-					for (j=0; j<splitValue.length; j++) {
-						splitValue[j] = decodeURIComponent(splitValue[j]);
-					}
-					r[name] = splitValue;
-				} else {
-					r[name] = decodeURIComponent(rawValue);
-				}
-				
+			if (r[name]) {
+				r[name] += ',' + value;
 			} else {
-				var decodedValue = decodeURIComponent(rawValue);
-				
-				if (oldValue) {
-					switch (typeof oldValue) {
-						case 'string':
-							r[name] = [oldValue, decodedValue];
-							break;
-						case 'object':
-							r[name].push(decodedValue);
-							break;
-						default:
-							r[name] = decodedValue;
-					}
-					r[name] += ',' + decodedValue;
-				} else {
-					r[name] = decodedValue;
-				}
-				
+				r[name] = value;
 			}
 		}
 		
 		if (hashSplit.length > 1) {
 			r._ppHash = hashSplit[1];
 		}
-		
-		window.console.log('queryStringToObject: ', r);
-		return r;
-	};
-	
-	function filterQueryStringValue(s) {
-		var r = decodeURIComponent(s);
-		
-		if (me.options.useXSSFilter) {
-			r = me.entify(r);
-		}
-		
 		return r;
 	}
 	
-	me.unentify = function (s) {
-		return s.replace(ampEntRe, '&').
-			replace(ltEntRe, '<').
-			replace(gtEntRe, '>');
-	};
-	
-	me.entify = function (s, options) {
-		return s.replace(ampRe, "&amp;")
-		  .replace(ltRe,"&lt;")
-		  .replace(gtRe,"&gt;");
-	};
 	/*
 	 * Takes a JavaScript object and converts it into a query string.
 	 */
 	function objectToQueryString(obj) {
-		var i, j, sb = [],
-			name = encodeURIComponent(i),
-			value = obj[i];
-		
+		var i, sb = [];
 		
 		for (i in obj) {
-			/*
-			 * If the value is an array, then this is a multi-value form element 
-			 * (i.e. multi-select or checkboxes).  
-			 */
-			if (typeof value === 'object') {
-				
-				/*
-				 * If this is a collapseMulti form, then we should join all the values
-				 * with a ',' in the URL.
-				 */
-				if (me.options.collapseMulti) {
-					for (j=0; j<value.length; j++) {
-						value[j] = encodeURIComponent(value[j]);
-					}
-					
-					value = value.join(',');
-					sb.push(name + '=' + value);
-				
-				/*
-				 * Otherwise, we just add each of the values one at a time in the 
-				 * query string.
-				 */
-				} else {
-					for (j=0; j<value.length; j++) {
-						sb.push(name + '=' + encodeURIComponent(obj[j]));
-					}
-				}
+			sb.push(encodeURIComponent(i) + '=' + encodeURIComponent(obj[i]));
 			
-			/*
-			 * If we get here, the value is assumed to be a string, so we just add
-			 * it to the query string.
-			 */
-			} else {
-				sb.push(name + '=' + encodeURIComponent(obj[i]));
-			}
 		}
 		
 		return sb.join('&');
@@ -573,15 +436,14 @@ var pp = new function () {
 	 * will put this into the pushstate:
 	 * 
 	 * {
-	 *   this: '1',
-	 *   that: '2',
-	 *   other: '3',
-	 *   _ppHash: 'myLinkName'
+	 * 		this: '1',
+	 *		that: '2',
+	 *		other: '3',
+	 *		_ppHash: 'myLinkName'
 	 * } 
 	 */
 	me.updatePushState = function (e, qs) {
-		var target = e.currentTarget || e.target,
-			formEls = document.getElementsByClassName('pp-form');
+		var target = e.currentTarget || e.target;
 		
 		switch (e.type) {
 			
@@ -606,11 +468,9 @@ var pp = new function () {
 			
 			e.state = params;
 			
-			/* 
-			 * If there is a form and this is not
-			 * a form event, let's populate the form.
-			 */
-			if (formEls.length !== 0 && target.nodeName !== 'FORM') {
+			// if there is a form and this is not
+			// a form event, let's populate the form.
+			if (me.formEls.length !== 0 && target.nodeName !== 'FORM') {
 				updateForms(params);
 			}
 			
@@ -637,10 +497,10 @@ var pp = new function () {
 	 * @param docForm -- Reference to a DOM node of the form element
 	 * @param formatOpts -- JS object of options for how to format
 	 * the return string. Supported options:
-	 * collapseMulti: (Boolean) take values from elements that
-	 * can return multiple values (multi-select, checkbox groups)
-	 * and collapse into a single, comman-delimited value
-	 * (e.g., thisVar=asdf,qwer,zxcv)
+	 *		collapseMulti: (Boolean) take values from elements that
+	 *		can return multiple values (multi-select, checkbox groups)
+	 *		and collapse into a single, comman-delimited value
+	 *		(e.g., thisVar=asdf,qwer,zxcv)
 	 * @returns query-string style String of variable-value pairs
 	 * 
 	 * Original code by Matthew Eernisse (mde@fleegix.org), March 2005
@@ -713,11 +573,10 @@ var pp = new function () {
 							lastElemName = formElem.name;
 						}
 						break;
-					/*
-					 * Text fields, hidden form elements, passwords, textareas, single
-					 * select elements, range, date and color.  Note that we use 
-					 * default here in order to catch others that may not be defined yet.
-					 */
+					// Text fields, hidden form elements, passwords, textareas, single
+					// select elements, range, date and color.  Note that we use 
+					// default here in order to catch
+					// others that may not be defined yet.
 					default:
 						str += formElem.name + '=' + encodeURIComponent(formElem.value) + '&';
 						break;
@@ -731,7 +590,7 @@ var pp = new function () {
 
 };
 
-// element-closest | CC0-1.0 | http://github.com/jonathantneal/closest
+// element-closest | CC0-1.0 | github.com/jonathantneal/closest
 
 if (typeof Element.prototype.matches !== 'function') {
 	Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.webkitMatchesSelector || function matches(selector) {

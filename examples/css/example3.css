@@ -6,7 +6,9 @@ body {
 	color: #fff;
 }
 
-
+em {
+	font-style: italic;
+}
 
 ul {
 	display: inline-block;
@@ -58,10 +60,6 @@ article a {
 	font-weight: bold;
 }
 
-/*
- * These animations were totally ripped off from Lucas Bebber
- * http://codepen.io/lbebber/pen/XJRdrV/
- */
 @keyframes fade-out {
   0% {
     opacity: 1;

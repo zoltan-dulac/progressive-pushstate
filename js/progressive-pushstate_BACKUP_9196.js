@@ -58,7 +58,13 @@ var pp = new function () {
 	 * 
 	 */
 	me.init = function (popstateEvent, options) {
-		me.options = (options || {}); 
+<<<<<<< HEAD
+		me.options = (options || {});
+		
+		// links that will update the state of the application
+		me.linkEls = document.getElementsByClassName('pp-link');
+=======
+>>>>>>> 5ed26b32d32f6b0067034a7d4f4a28b078d1271a
 		
 		var formEls = document.getElementsByClassName('pp-form'),
 			formElsLen = formEls.length,
