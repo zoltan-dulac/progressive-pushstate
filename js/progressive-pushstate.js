@@ -413,9 +413,7 @@ var pp = new function () {
 				name = decodeURIComponent(splitVal[0]),
 				value = decodeURIComponent(splitVal[1]);
 			
-<<<<<<< HEAD
-			r[decodeURIComponent(splitVal[0])] = filterQueryStringValue(splitVal[1]);
-=======
+
 			/*
 			 * If the `collapseMulti` option is not used, checkboxes and select-multi's
 			 * can be put into the query string as so:
@@ -432,7 +430,6 @@ var pp = new function () {
 			} else {
 				r[name] = value;
 			}
->>>>>>> 08c878093190aaf198b794713e3a4610c7a2b715
 		}
 		
 		if (hashSplit.length > 1) {

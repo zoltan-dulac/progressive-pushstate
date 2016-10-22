@@ -25,7 +25,7 @@ header, nav {
 }
 
 body {
-	font-family: "PressStart2P", sans-serif;
+	font-family: "PressStart2P", monospace;
 	position: relative;
 }
 header h1 {
@@ -96,7 +96,7 @@ article h2 {
 
 article h2,
 .parallax__layer--base p {
-	font-family: "PressStart2P", sans-serif;
+	font-family: "PressStart2P", monospace;
 	color: white;
 	z-index: 5;
 	
@@ -105,7 +105,7 @@ article h2,
 .parallax__layer--base p {
 	margin-top: 40px;
 	color: white;
-	font-family: "PressStart2P", sans-serif;
+	font-family: "PressStart2P", monospace;
 	font-size: 24px;
 	text-shadow: 0 0 5px  rgba(255, 255, 255, 0.5), 0 0 10px  rgba(255, 255, 255, 0.5),
 							0 0 15px  rgba(255, 255, 255, 0.5), 0 0 20px  rgba(255, 0, 222, 0.5),
@@ -215,7 +215,7 @@ form:before {
 }
 
 select {
-	font-family: "PressStart2P", sans-serif;
+	font-family: "PressStart2P", monospace;
 	text-transform: uppercase;
 	-webkit-appearance: none;
 	appearance: none;
