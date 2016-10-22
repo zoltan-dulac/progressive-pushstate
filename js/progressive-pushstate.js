@@ -49,13 +49,6 @@ var pp = new function () {
 	 *   (default: {} or if a link with class "pp-default" exists, the
 	 *   URL of that link).
 	 * 
-	 * - useXSSFilter: will make progressive-pushstate decode querystring
-	 *   variable values by default.  Set this to true only if you know 
-	 *   what you are doing, since you can inadvertantly cause XSS attacks.
-	 *   See https://vip.wordpress.com/2015/03/25/preventing-xss-in-javascript
-	 *   (default: true)
-	 * 
-	 * 
 	 */
 	me.init = function (popstateEvent, options) {
 		me.options = (options || {}); 
@@ -142,11 +135,6 @@ var pp = new function () {
 				});
 				me.lastState = params;
 			}
-		}
-		
-		// ensure XSS Filter is on by default
-		if (me.options.useXSSFilter === undefined) {
-			me.options.useXSSFilter = true;
 		}
 	};
 	
@@ -492,15 +480,6 @@ var pp = new function () {
 		return r;
 	};
 	
-	function filterQueryStringValue(s) {
-		var r = decodeURIComponent(s);
-		
-		if (me.options.useXSSFilter) {
-			r = me.entify(r);
-		}
-		
-		return r;
-	}
 	
 	me.unentify = function (s) {
 		return s.replace(ampEntRe, '&').
