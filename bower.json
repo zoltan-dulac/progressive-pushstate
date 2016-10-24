@@ -13,7 +13,7 @@
    * Details at: 
    *   http://stackoverflow.com/questions/19456091/bower-register-new-version
    */
-  "version": "0.7.0",
+  "version": "0.7.1",
   "homepage": "https://github.com/zoltan-dulac/progressive-pushstate",
   "authors": [
     "Zoltan Hawryluk <zoltan.dulac@gmail.com>"
