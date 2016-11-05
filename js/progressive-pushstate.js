@@ -361,6 +361,7 @@ var pp = new function () {
 	}
 	
 	function formChangeEvent(e) {
+		
 		/*
 		 * Target is the event's current target, or the target's form element
 		 * since Firefox (and possibly others) have an issue with keypress on 
@@ -370,6 +371,13 @@ var pp = new function () {
 			formEls = document.getElementsByClassName('pp-form');
 		
 		if (e.type.indexOf('key') === 0) {
+			/*
+			 * If the key pressed is "enter", return immediately, since this 
+			 * interferes with the submit event.
+			 */
+			if (e.keyCode === 13) {
+				return;
+			}
 			target = e.currentTarget || e.target.form;
 		} else {
 			target = e.target;

@@ -99,7 +99,10 @@ article h2,
 	font-family: "PressStart2P", monospace;
 	color: white;
 	z-index: 5;
-	
+}
+
+article h2.smaller-text {
+	padding-top: 9vw;
 }
 
 .parallax__layer--base p {
@@ -385,6 +388,11 @@ and (orientation: portrait) {
 		
 	}
 	
+	
+	article h2.smaller-text {
+		padding-top: 20vw;
+	}
+	
 	article .copy {
 		/* width(.article-image) * 376 / 702 */
 		margin-top: 107.1225071225071vw;
@@ -407,13 +415,14 @@ and (orientation: portrait) {
 	}
 }
 
+/* mobile */
 @media only screen and (max-width: 360px) {
 	header h1 {
 		font-size: 3.5vw;
 	}
 	
-	article h2 {
-		
+	article h2.smaller-text {
+		padding-top: 20vw;
 	}
 	
 	article .copy {
