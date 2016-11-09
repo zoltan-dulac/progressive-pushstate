@@ -1,0 +1,18 @@
+@import "reset.css";
+
+body {
+	font-family: "Helvetica", "Arial", sans-serif;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table th, table td {
+	padding: 10px;
+	text-align: left;
+}
+
+table th {
+	font-weight: bold;
+}
