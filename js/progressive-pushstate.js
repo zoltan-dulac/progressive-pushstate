@@ -1,5 +1,5 @@
 /*********************************************************
- * Progressive Pushstate v0.7.5 - a library to facilitate
+ * Progressive Pushstate v0.7.6 - a library to facilitate
  * progressively enhanced pushstate/popstate enabled applications
  * with a server-side fallback.
  * 

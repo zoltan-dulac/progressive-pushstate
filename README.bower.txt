@@ -1,4 +1,7 @@
-If you change the version in bower.json, you must update the project using 
+If you change the version in bower.json, please update the banner in 
+progressive-pushstate.js with the same version number.
+
+You must update the project using 
 
   git tag v<version-number>
 
