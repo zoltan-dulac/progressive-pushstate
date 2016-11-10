@@ -4,15 +4,73 @@ body {
 	font-family: "Helvetica", "Arial", sans-serif;
 }
 
+table, form {
+	width: 100%;
+	max-width: 1024px;
+	margin: 1em auto;
+}
+
 table {
 	border-collapse: collapse;
 }
 
 table th, table td {
-	padding: 10px;
+	line-height: 2em;
 	text-align: left;
 }
 
 table th {
 	font-weight: bold;
+	color: white;
+	background-color: black;
+}
+
+table tr {
+	display: none;
+	opacity: 0;
+}
+
+
+table.all-levels tbody tr,
+table.level-A tbody tr.level-A,
+table.level-AA tbody tr.level-AA,
+table.level-AAA tbody tr.level-AAA {
+	display: table-row;
+	opacity: 1;
+	
+	animation: grow-row 250ms ease-in-out  normal;
+}
+
+
+
+table tbody tr:nth-child(2n) {
+	background-color: #cccccc;
+}
+
+form {
+	display: block;
+}
+
+fieldset {
+	padding: 1em;
+	border: solid 1px black;
+}
+
+label {
+	margin: 0 1em;
+}
+
+
+@keyframes grow-row {
+  0% {
+    display: none;
+    opacity: 0;
+  }
+  1% {
+    display: table-row;
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }

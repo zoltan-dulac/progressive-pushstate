@@ -472,7 +472,6 @@ var pp = new function () {
 						default:
 							r[name] = decodedValue;
 					}
-					r[name] += ',' + decodedValue;
 				} else {
 					r[name] = decodedValue;
 				}
@@ -484,7 +483,6 @@ var pp = new function () {
 			r._ppHash = hashSplit[1];
 		}
 		
-		window.console.log('queryStringToObject: ', r);
 		return r;
 	};
 	
