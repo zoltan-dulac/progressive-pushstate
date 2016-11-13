@@ -4,6 +4,10 @@ body {
 	font-family: "Helvetica", "Arial", sans-serif;
 }
 
+label {
+	cursor: pointer;
+}
+
 table, form {
 	width: 100%;
 	max-width: 1024px;
@@ -15,8 +19,9 @@ table {
 }
 
 table th, table td {
-	line-height: 2em;
+	line-height: 1.2;
 	text-align: left;
+	padding: 10px;
 }
 
 table th {
@@ -24,24 +29,45 @@ table th {
 	color: white;
 	background-color: black;
 }
+table tbody tr,
+table tbody tr div {
+	transform: translateZ(0);
+}
 
-table tr {
-	display: none;
+table tbody tr {
+	
+}
+
+table tbody tr div {
+	
+	overflow: hidden;
+}
+
+table tbody tr.hide {
 	opacity: 0;
 }
 
-
-table.all-levels tbody tr,
-table.level-A tbody tr.level-A,
-table.level-AA tbody tr.level-AA,
-table.level-AAA tbody tr.level-AAA {
-	display: table-row;
-	opacity: 1;
-	
-	animation: grow-row 250ms ease-in-out  normal;
+table.animation-done tbody tr.hide {
+	display: none;
 }
 
+table.animation-done tbody tr.hide div {
+	display: none;
+	height: auto;
+	max-height: 0;
+}
 
+table tbody tr.show {
+	display: table-row;
+	opacity: 1;
+	animation: 250ms ease-in-out 0s 1 normal both running grow-row ;
+}
+
+table tbody tr.show div {
+	display: block;
+	max-height: 4em;
+	animation: 250ms ease-in-out 0s 1 normal both running grow-text ;
+}
 
 table tbody tr:nth-child(2n) {
 	background-color: #cccccc;
@@ -65,12 +91,56 @@ label {
   0% {
     display: none;
     opacity: 0;
+    padding: 0;
+    max-height: 0;
   }
   1% {
     display: table-row;
     opacity: 0;
+    padding: 0;
+    max-height: 0;
   }
   100% {
+  	display: table-row;
     opacity: 1;
+    padding: 10px;
+    max-height: 4em;
+  }
+}
+
+@keyframes shrink-row {
+	0% {
+  	display: table-row;
+    opacity: 1;
+    padding: 10px;
+    max-height: 4em;
+  }
+  99% {
+    display: table-row;
+    opacity: 0;
+    padding: 0;
+    max-height: 0;
+  }
+	0% {
+    display: none;
+    opacity: 0;
+    padding: 0;
+    max-height: 0;
+  }
+  
+}
+
+@keyframes grow-text {
+  0% {
+  	display: none;
+    max-height: 0;
+  }
+  1% {
+  	display: block;
+    max-height: 0;
+  }
+  100% {
+  	display: block;
+    max-height: 4em;
   }
 }

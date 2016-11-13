@@ -55,6 +55,7 @@ var pp = new function () {
 		
 		var formEls = document.getElementsByClassName('pp-form'),
 			formElsLen = formEls.length,
+			params,
 			i, j, k;;
 			
 		me.options = (options || {}); 
@@ -117,24 +118,25 @@ var pp = new function () {
 			var splitLocation = location.href.split('?');
 			
 			if (splitLocation.length === 2) {
-				var params = queryStringToObject(splitLocation[1]);
-				
-				window.history.replaceState(params, '', window.location.href);
-				
-				// if there is a form and this is not
-				// a form event, let's populate the form.
-				if (formEls.length !== 0) {
-					updateForms(params);
-				}
-				
-				me.popstateEvent({
-					type: 'init',
-					target: document,
-					currentTarget: document,
-					state: params
-				});
-				me.lastState = params;
+				params = queryStringToObject(splitLocation[1]);
+			} else {
+				params = {};
+			}	
+			window.history.replaceState(params, '', window.location.href);
+			
+			// if there is a form and this is not
+			// a form event, let's populate the form.
+			if (formEls.length !== 0) {
+				updateForms(params);
 			}
+			
+			me.popstateEvent({
+				type: 'init',
+				target: document,
+				currentTarget: document,
+				state: params
+			});
+			me.lastState = params;
 		}
 	};
 	
@@ -712,6 +714,27 @@ var pp = new function () {
 		// Remove trailing separator
 		str = str.substr(0, str.length - 1);
 		return str;
+	};
+	
+	me.isInStateProperty = function (property, value) {
+		if (property === undefined) {
+			return false;
+		}
+		
+		var propType = typeof(property),
+			i;
+		
+		if (propType === 'string' && property === value) {
+			return true;
+		} else if (propType === 'object') {
+			for (i=0; i<property.length; i++) {
+				if (property[i] === value) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	};
 
 };
