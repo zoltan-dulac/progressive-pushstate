@@ -21,6 +21,14 @@ Error -- Usage:
 Where <version-number> is in the form vX.Y.Z (where X, Y, Z are postive integers).
 
 " 1>&2
+	exit 1
+else
+	BRANCH=`getCurrentBranch`
+	if [ "$BRANCH" != "master" ]
+	then
+		echo "Error: Need to be in branch 'master'. You are currently in '$BRANCH'. Bailing"
+		exit 2
+	fi
 fi
 
 TAG="$1"
@@ -32,12 +40,12 @@ getAnswer
 if [ "$ANS" != "Y" ]
 then
 	echo "Bailing."
-	exit 1
+	exit 3
 fi
 
 for FILE in $FILELIST
 do
-	sed -i.bak "s/$OLD_TAG/$TAG" $FILE
+	sed -i.bak "s/$OLD_TAG/$TAG/" $FILE
 	
 	echo "Here is the how $FILE looks: "
 	echo
@@ -50,7 +58,17 @@ echo "Are you happy with the changes"
 getAnswer
 if [ "$ANS" = "Y" ]
 then
-	git push origin $TAG
+	for FILE in $FILELIST
+	do
+		echo "Removing $FILE.bak"
+		rm $FILE.bak
+	done
+	
+	echo "Pushing to master"
+	pushCurrentBranch
+	echo "Pushing tag"
+	git tag v$TAG
+	git push origin v$TAG
 else 
 	for i in $FILELIST
 	do
@@ -61,7 +79,7 @@ else
 			echo "Done!"
 		else
 			echo "Couldn't revert.  Bailing."
-			exit 2
+			exit 4
 		fi
 	done
 fi
