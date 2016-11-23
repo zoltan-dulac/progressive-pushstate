@@ -158,6 +158,11 @@ Other options include:
 - debounceTime: (experimental) sets the debounce time for resize/scroll events default: 50)
 - keyDebounceTime: (experimental) sets the debounce time for form key events events default: 500)
 
+## Runtime Options
+
+- If a `pp-link` link has a class `pp-merge`, then the data in the link will merge with the current value inside `window.history.state`. This will, of course, also be reflected in the URL.
+- Similarly if a `pp-form` has a class `pp-merge`, then the data in the form will merge with the current value inside `window.history.state`.
+
 ## Dependencies
 
 None.  This is plain ol' JavaScript, my friend.  You can use it with jQuery/Moo Tools/Dojo/etc., but you don't need to.

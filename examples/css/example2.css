@@ -81,7 +81,7 @@ article {
 article h2 {
 	text-transform: uppercase;
 	font-size: 8vw;
-	padding-top: 15vw;
+	padding-top: calc(10vw + 104px);
 	text-align: center;
 	
 	/*
@@ -102,7 +102,7 @@ article h2,
 }
 
 article h2.smaller-text {
-	padding-top: 9vw;
+	padding-top: calc(5vw + 104px);
 }
 
 .parallax__layer--base p {
@@ -388,7 +388,6 @@ and (orientation: portrait) {
 		
 	}
 	
-	
 	article h2.smaller-text {
 		padding-top: 20vw;
 	}
@@ -412,6 +411,12 @@ and (orientation: portrait) {
     width: 70vw;
     margin: 0 auto;
     line-height: 1.3;
+	}
+}
+
+@media only screen and (max-width: 768px) and (orientation: landscape) {
+	.parallax__layer--back {
+		transform: translateZ(-1px) translateY(6vh) scale(2);
 	}
 }
 

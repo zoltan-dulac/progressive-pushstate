@@ -1,5 +1,5 @@
 /*********************************************************
- * Progressive Pushstate v0.7.6 - a library to facilitate
+ * Progressive Pushstate v0.7.7 - a library to facilitate
  * progressively enhanced pushstate/popstate enabled applications
  * with a server-side fallback.
  * 
@@ -8,7 +8,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
- *  http://www.apache.org/licenses/LICENSE-2.0
+ *	http://www.apache.org/licenses/LICENSE-2.0
  ********************************************************/
 
 
@@ -39,15 +39,15 @@ var pp = new function () {
 	 * options: options to configure this object.	Values can be:
 	 * 
 	 * - pushScrollState: enables the application to keep track of
-	 *   scrollbar position in the app. (default: false)
+	 *	 scrollbar position in the app. (default: false)
 	 * - debounceTime: sets the debounce time for resize/scroll events
-	 *   (default: 50)
+	 *	 (default: 50)
 	 * 
 	 * - doPopstateOnload: fire the popstateEvent onload (default: false)
 	 * 
 	 * - defaultState: the initial default state of the application
-	 *   (default: {} or if a link with class "pp-default" exists, the
-	 *   URL of that link).
+	 *	 (default: {} or if a link with class "pp-default" exists, the
+	 *	 URL of that link).
 	 * 
 	 */
 	me.init = function (popstateEvent, options) {
@@ -146,7 +146,7 @@ var pp = new function () {
 		
 		/*
 		 * We check all fields to see which ones are *not* a child of
-		 * the form element.  Those that aren't need to listen to the 
+		 * the form element.	Those that aren't need to listen to the 
 		 * given events, because it won't be bubbled up to the form element
 		 * itself, so we store add them in the `eventNodes` array. 
 		 */
@@ -240,7 +240,11 @@ var pp = new function () {
 		me.lastState = state;
 	}
 	
-	function updateCheckbox (el, stateValues) {
+	/*
+	 * This will take `el` that has set values (like a checkbox or a seclect box)
+	 * and (un)check/(un)select it if the state says it is supposed to be.
+	 */
+	function updateSetValueInput (el, stateValues, isCheckbox) {
 		var i, stateValue, checked = false;
 		
 		for (i=0; i<stateValues.length; i++) {
@@ -252,7 +256,13 @@ var pp = new function () {
 			} 
 		}
 		
-		el.checked = checked;
+		if (isCheckbox) {
+			console.log('checkbox');
+			el.checked = checked;
+		} else {
+			console.log('select');
+			el.selected = checked;
+		}
 	}
 	
 	function updateForms(state) {
@@ -287,32 +297,17 @@ var pp = new function () {
 							// that is the visible label of the button, so we break here.
 							break;
 						case "radio":
-							var allElementsWithName = formEl.elements[name],
-								elsLen = allElementsWithName.length;
-								
-							for (j=0; j<elsLen; j++) {
-								var el = allElementsWithName[j];
-								
-								// if the value is in the stateVal array, check the box
-								if (el.value === stateVal) {
-									el.checked = true;
-								} else {
-									el.checked = false;
-								}
-							}
-							if (field.value === state[name]) {
-								field.checked = true;
-							}
-							break;
 						case "select-multiple":
+						case "select-one":
 						case "checkbox":
-							var allElementsWithName = formEl.elements[name],
+							var isCheckbox = (field.type === 'checkbox' || field.type === 'radio'),
+								allElementsWithName = isCheckbox ? formEl.elements[name] : field.options,
 								elsLen = allElementsWithName.length;
 							
 							// if stateVal isn't an array, make it one.
 							if (typeof stateVal !== 'object') {
 								stateVal = [stateVal];
-							} 
+							}
 							
 							/*
 							 * allElementsWithName can be an array or a single element, so
@@ -321,12 +316,13 @@ var pp = new function () {
 							if (allElementsWithName.length) {
 								for (j=0; j<elsLen; j++) {
 									var el = allElementsWithName[j];
-									updateCheckbox(el, stateVal);
+									updateSetValueInput(el, stateVal, isCheckbox);
 								}
 							} else {
-								updateCheckbox(allElementsWithName, stateVal);
+								updateSetValueInput(allElementsWithName, stateVal, isCheckbox);
 							}
 							break;
+							
 						default:
 							field.value = stateVal;
 					}
@@ -344,7 +340,10 @@ var pp = new function () {
 	 * the query string into the document's popstate for the URL.
 	 */
 	function linkClickEvent(e) {
-		var target = e.target;
+		var target = e.target,
+			updateOptions = {
+				isMerge: hasClass(target, 'pp-merge')
+			};
 		
 		if (target.nodeName !== 'A' || ! target.classList.contains('pp-link')) {
 			return;
@@ -357,13 +356,13 @@ var pp = new function () {
 			var qs = splitURL[1];
 				
 			e.preventDefault();
-			me.updatePushState(e, qs);
+			me.updatePushState(e, qs, updateOptions);
 			
 		}
 	}
 
 	function hasClass( target, className ) {
-	    return new RegExp('(\\s|^)' + className + '(\\s|$)').test(target.className);
+			return new RegExp('(\\s|^)' + className + '(\\s|$)').test(target.className);
 	}
 	
 	function formChangeEvent(e) {
@@ -372,13 +371,20 @@ var pp = new function () {
 		 * since Firefox (and possibly others) have an issue with keypress on 
 		 * form setting the currentTarget correctly.
 		 */
-		var target, qs,
-			formEls = document.getElementsByClassName('pp-form');
+		var target, targetForm, qs,
+			formEls = document.getElementsByClassName('pp-form'),
+			updateOptions;
 		
 		if (e.type.indexOf('key') === 0) {
 			target = e.currentTarget || e.target.form;
 		} else {
 			target = e.target;
+		}
+		
+		targetForm = target.form;
+		
+		updateOptions = {
+			isMerge: hasClass(targetForm, 'pp-merge')
 		}
 		
 		if (target.form) {
@@ -393,7 +399,7 @@ var pp = new function () {
 			collapseMulti: me.options.collapseMulti
 		});
 			
-		me.updatePushState(e, qs);
+		me.updatePushState(e, qs, updateOptions);
 		
 		if (e.type === 'submit') {
 			for (var i=0; i<formEls.length; i++) {
@@ -444,7 +450,7 @@ var pp = new function () {
 			 * 
 			 * In order to accomodate for this, we should check if the object property
 			 * corresponding to the checkbox name (in the above example 
-			 * `checkboxProp`) is already set.  If so, we make that property into 
+			 * `checkboxProp`) is already set.	If so, we make that property into 
 			 * an array with the old and new values in it. If not, then just add the
 			 * property to the object. 
 			 */
@@ -497,8 +503,8 @@ var pp = new function () {
 	
 	me.entify = function (s, options) {
 		return s.replace(ampRe, "&amp;")
-		  .replace(ltRe,"&lt;")
-		  .replace(gtRe,"&gt;");
+			.replace(ltRe,"&lt;")
+			.replace(gtRe,"&gt;");
 	};
 	/*
 	 * Takes a JavaScript object and converts it into a query string.
@@ -512,7 +518,7 @@ var pp = new function () {
 		for (i in obj) {
 			/*
 			 * If the value is an array, then this is a multi-value form element 
-			 * (i.e. multi-select or checkboxes).  
+			 * (i.e. multi-select or checkboxes).	
 			 */
 			if (typeof value === 'object') {
 				
@@ -560,18 +566,19 @@ var pp = new function () {
 	 * will put this into the pushstate:
 	 * 
 	 * {
-	 *   this: '1',
-	 *   that: '2',
-	 *   other: '3',
-	 *   _ppHash: 'myLinkName'
+	 *	 this: '1',
+	 *	 that: '2',
+	 *	 other: '3',
+	 *	 _ppHash: 'myLinkName'
 	 * } 
 	 */
-	me.updatePushState = function (e, qs) {
+	me.updatePushState = function (e, qs, options) {
 		var target = e.currentTarget || e.target,
 			formEls = document.getElementsByClassName('pp-form');
 		
+		options = options || {};
+		
 		switch (e.type) {
-			
 			case 'submit':
 			case 'click':
 				e.preventDefault();
@@ -589,6 +596,11 @@ var pp = new function () {
 		
 		if (window.history.pushState) {
 			var newUrl = getBaseUrl() + '?' + qs;
+			
+			if (options.isMerge) {
+				params = Object.assign(getNormalizedObject(window.history.state), params);
+			}
+		
 			window.history.pushState(params, '', newUrl);
 			
 			e.state = params;
@@ -606,6 +618,18 @@ var pp = new function () {
 			
 		}
 	};
+	
+	function getNormalizedObject(obj) {
+		var r = {}, i;
+		
+		for (i in obj) {
+			if (obj[i]) {
+				r[i] = obj[i];
+			}
+		}
+		
+		return r;
+	}
 	
 	/*
 	 * This will be used in the future to compare two states to see if 
@@ -702,7 +726,7 @@ var pp = new function () {
 						break;
 					/*
 					 * Text fields, hidden form elements, passwords, textareas, single
-					 * select elements, range, date and color.  Note that we use 
+					 * select elements, range, date and color.	Note that we use 
 					 * default here in order to catch others that may not be defined yet.
 					 */
 					default:
@@ -769,4 +793,31 @@ if (typeof Element.prototype.closest !== 'function') {
 
 		return null;
 	};
+}
+
+// Object.assign polyfill from 
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign#Polyfill
+if (typeof Object.assign != 'function') {
+	Object.assign = function (target, varArgs) { // .length of function is 2
+		'use strict';
+		if (target == null) { // TypeError if undefined or null
+			throw new TypeError('Cannot convert undefined or null to object');
+		}
+
+		var to = Object(target);
+
+		for (var index = 1; index < arguments.length; index++) {
+			var nextSource = arguments[index];
+
+			if (nextSource != null) { // Skip over if undefined or null
+				for (var nextKey in nextSource) {
+					// Avoid bugs when hasOwnProperty is shadowed
+					if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+						to[nextKey] = nextSource[nextKey];
+					}
+				}
+			}
+		}
+		return to;
+	}
 }

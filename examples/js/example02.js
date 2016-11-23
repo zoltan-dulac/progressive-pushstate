@@ -23,6 +23,10 @@ var example1 = new function () {
 	me.popstateEvent = function(e) {
 		currentState = e.state;
 		
+		if (!currentState.f) {
+			currentState.f = 'home';
+		}
+		
 		/* See if this information was cached */
 		var cachedData = cache[currentState.f];
 		

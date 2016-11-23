@@ -53,7 +53,7 @@
 		<script src="../js/progressive-pushstate.js"></script>
 		
 		<!-- not needed for progressive-pushstate, but used in page code -->
-		<script src="js/jquery-1.12.0.min.js"></script>
+		<script src="js/jquery-3.1.1.min.js"></script>
 		<script src="js/example02-no-server-render.js"></script>
 	</body>
 </html>

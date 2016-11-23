@@ -2,6 +2,7 @@
 
 body {
 	font-family: "Helvetica", "Arial", sans-serif;
+	margin: 10px;
 }
 
 label {
@@ -65,7 +66,7 @@ table tbody tr.show {
 
 table tbody tr.show div {
 	display: block;
-	max-height: 4em;
+	max-height: 6em;
 	animation: 250ms ease-in-out 0s 1 normal both running grow-text ;
 }
 
@@ -84,8 +85,15 @@ fieldset {
 
 label {
 	margin: 0 1em;
+	white-space: nowrap;
 }
 
+.field-group-container {
+	float: left;
+	margin-top: 10px;
+}
+
+@
 
 @keyframes grow-row {
   0% {
@@ -104,7 +112,7 @@ label {
   	display: table-row;
     opacity: 1;
     padding: 10px;
-    max-height: 4em;
+    max-height: 6em;
   }
 }
 
@@ -113,7 +121,7 @@ label {
   	display: table-row;
     opacity: 1;
     padding: 10px;
-    max-height: 4em;
+    max-height: 6em;
   }
   99% {
     display: table-row;
@@ -141,6 +149,13 @@ label {
   }
   100% {
   	display: block;
-    max-height: 4em;
+    max-height: 6em;
   }
+}
+
+/* tablet portrait */
+@media only screen and (max-width: 360px) {
+	body {
+		font-size: 3.5vw;
+	}
 }

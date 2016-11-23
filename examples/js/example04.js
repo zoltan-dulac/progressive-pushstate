@@ -6,17 +6,6 @@ var example4 = new function () {
 	me.init = function () {
 		var el, i, cells, sectionCell, levelCell;
 		
-		for (i=0; i<rowEls.length; i++) {
-			el = rowEls[i];
-			cells = el.getElementsByTagName('td');
-			sectionCell = cells[0]
-			levelCell = cells[3];
-			
-			el.classList.add('level-' + levelCell.innerText.trim());
-			el.dataset.level = ('level-' + levelCell.innerText.trim());
-			el.classList.add('section-' + sectionCell.innerText.split('.')[0].trim());
-			el.classList.add('all');
-		}
 		
 		pp.init(me.popstateEvent, {
 			doPopstateOnload: true

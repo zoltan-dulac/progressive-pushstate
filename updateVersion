@@ -1,0 +1,67 @@
+#!/bin/bash
+
+#######################################
+# Updates bower version automatically
+#######################################
+
+FILELIST="bower.json js/progressive-pushstate.js"
+
+getAnswer() {
+	read ANS
+	ANS=`echo $ANS | tr '[a-z]' '[A-Z]'`
+}
+
+if [ "$#" != "1" ]
+then
+	echo "
+Error -- Usage: 
+
+   $0 <version-number>
+
+Where <version-number> is in the form vX.Y.Z (where X, Y, Z are postive integers).
+
+" 1>&2
+fi
+
+TAG="$1"
+
+OLD_TAG=`cat bower.json | grep '"version"' | awk -F':' '{print $2}' | awk -F'"' '{print $2}'`
+
+echo "Replace '$OLD_TAG' with '$TAG'?"
+getAnswer
+if [ "$ANS" != "Y" ]
+then
+	echo "Bailing."
+	exit 1
+fi
+
+for FILE in $FILELIST
+do
+	sed -i.bak "s/$OLD_TAG/$TAG" $FILE
+	
+	echo "Here is the how $FILE looks: "
+	echo
+	head $FILE
+	echo
+	echo
+done
+
+echo "Are you happy with the changes"
+getAnswer
+if [ "$ANS" = "Y" ]
+then
+	git push origin $TAG
+else 
+	for i in $FILELIST
+	do
+		echo "Reverting $FILE...\c"
+		mv $FILE.bak $FILE
+		if [ "$?" = "0" ]
+		then
+			echo "Done!"
+		else
+			echo "Couldn't revert.  Bailing."
+			exit 2
+		fi
+	done
+fi

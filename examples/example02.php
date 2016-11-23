@@ -34,7 +34,7 @@
 				</ul>
 				<form class="pp-form" data-pp-events="change">
 					<select name="f">
-						<option value="home">Home</option>
+						<option value="home" selected>Home</option>
 						<option value="donkey-kong">Donkey Kong</option>
 						<option value="pac-man">Pac-Man</option>
 						<option value="robotron">Robotron 2048</option>
@@ -57,7 +57,7 @@
 		<script src="../js/progressive-pushstate.js"></script>
 		
 		<!-- not needed for progressive-pushstate, but used in page code -->
-		<script src="js/jquery-1.12.0.min.js"></script>
+		<script src="js/jquery-3.1.1.min.js"></script>
 		<script src="js/example02.js"></script>
 	</body>
 </html>
