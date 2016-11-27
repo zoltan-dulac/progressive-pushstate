@@ -30,18 +30,25 @@ table th {
 	color: white;
 	background-color: black;
 }
+
+/*
+ *  GPU accelleration in order browsers.
+ */
 table tbody tr,
 table tbody tr div {
-	transform: translateZ(0);
+	transform: translateZ(0);;
 }
 
+/*
+ *  GPU accelleration in newer browsers.
+ */
 table tbody tr {
-	
+	will-change: display, opacity, padding, max-height;
 }
 
 table tbody tr div {
-	
 	overflow: hidden;
+	will-change: display, max-height;
 }
 
 table tbody tr.hide {
@@ -93,7 +100,10 @@ label {
 	margin-top: 10px;
 }
 
-@
+
+.no-data {
+	text-align: center;
+}
 
 @keyframes grow-row {
   0% {

@@ -1,5 +1,5 @@
 /*********************************************************
- * Progressive Pushstate v0.7.11 - a library to facilitate
+ * Progressive Pushstate v0.7.12 - a library to facilitate
  * progressively enhanced pushstate/popstate enabled applications
  * with a server-side fallback.
  * 
@@ -25,7 +25,7 @@ var pp = new function () {
 		// Needed by unentify()
 		ampEntRe = /&amp;/g,
 		ltEntRe = /&lt;/g,
-		rtEntRe = /&gt;/g;
+		gtEntRe = /&gt;/g;
 
 	
 	me.lastState = {};
@@ -56,7 +56,7 @@ var pp = new function () {
 		var formEls = document.getElementsByClassName('pp-form'),
 			formElsLen = formEls.length,
 			params,
-			i, j, k;;
+			j;
 			
 		me.options = (options || {}); 
 		
@@ -142,15 +142,7 @@ var pp = new function () {
 	
 	me.initForm = function(formEl) {
 		var events = formEl.getAttribute('data-pp-events') || 'change',
-			eventNodes = [formEl],
-		
-		/*
-		 * We check all fields to see which ones are *not* a child of
-		 * the form element.	Those that aren't need to listen to the 
-		 * given events, because it won't be bubbled up to the form element
-		 * itself, so we store add them in the `eventNodes` array. 
-		 */
-		formFields = formEl.elements;
+			formFields = formEl.elements;
 				
 		if (events) {
 			events = events.split(spaceRe);
@@ -170,7 +162,7 @@ var pp = new function () {
 		} else {
 			formEl.addEventListener('submit', formChangeEvent);
 		}
-	}
+	};
 	
 	/* Stolen from https://github.com/rodneyrehm/viewport-units-buggyfill/blob/master/viewport-units-buggyfill.js */
 	function debounce(func, wait) {
@@ -257,10 +249,8 @@ var pp = new function () {
 		}
 		
 		if (isCheckbox) {
-			console.log('checkbox');
 			el.checked = checked;
 		} else {
-			console.log('select');
 			el.selected = checked;
 		}
 	}
@@ -376,19 +366,19 @@ var pp = new function () {
 			updateOptions;
 		
 		if (e.type.indexOf('key') === 0) {
-			target = e.currentTarget || e.target.form;
+			target = e.currentTarget || getFormElementOfField(e.target);
 		} else {
 			target = e.target;
 		}
 		
-		targetForm = target.form;
+		targetForm = (target.nodeName === 'FORM') ? target : getFormElementOfField(target);
 		
 		updateOptions = {
 			isMerge: hasClass(targetForm, 'pp-merge')
 		}
 		
-		if (target.form) {
-			target = target.form;
+		if (target) {
+			target = targetForm;
 			
 			if(!hasClass(target, 'pp-form')) {
 				return;
@@ -493,6 +483,27 @@ var pp = new function () {
 		
 		return r;
 	};
+	
+	/**
+	 * Given an tag, find the first ancestor tag of a given tag name.
+	 */ 
+	function getAncestorByTagName (obj, tagName) {
+		
+		for (var node = obj.parentNode; 
+			  node.nodeName !== 'BODY';
+			  node = node.parentNode) {
+		
+			if (tagName === node.nodeName) {
+				return node;
+			}
+			  
+		}
+		return null;
+	}
+	
+	function getFormElementOfField(formField) {
+		return formField.form || getAncestorByTagName(formField, 'FORM');
+	}
 	
 	
 	me.unentify = function (s) {
@@ -819,5 +830,5 @@ if (typeof Object.assign != 'function') {
 			}
 		}
 		return to;
-	}
+	};
 }

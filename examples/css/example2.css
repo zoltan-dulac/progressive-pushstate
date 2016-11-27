@@ -26,10 +26,6 @@ header, nav {
 	z-index: 1;
 }
 
-body {
-	font-family: "PressStart2P", sans-serif;
-	position: relative;
-}
 header h1 {
 	font-size: 30px;
 	text-align: center;
@@ -39,6 +35,17 @@ header h1 {
 
 header h1 small {
 	text-transform: none;
+}
+
+.visually-hidden {
+	border: 0;
+	clip: rect(0 0 0 0);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px;
 }
 
 .pp-form {
@@ -102,7 +109,7 @@ article h2,
 }
 
 article h2.smaller-text {
-	padding-top: calc(5vw + 104px);
+	padding-top: calc(5vh + 35px);
 }
 
 .parallax__layer--base p {
@@ -118,9 +125,10 @@ article h2.smaller-text {
 
 body {
 	position: relative;
+	/* GPU accelleration in older browsers */
 	transform: translateZ(0);
-	/* animation: flicker 0.15s steps(20) infinite ; */
-	
+	/* GPU accelleration in newer browsers */
+	will-change: transform, -webkit-filter, filter, opacity;
 }
 
 /* Probably should be removed */
@@ -132,7 +140,6 @@ article div.article-image {
 article .article-image {
 	width: 100vw;
 	height: 35vw;
-	
 	top: 0;
 	left: 0;
 	z-index: 0;
@@ -149,7 +156,6 @@ article .copy {
 	padding: 1rem;
 	width: 100vw;
 	margin-top: 40vw;
-	transform: translateZ(0);
 }
 
 body.hide {
@@ -229,76 +235,6 @@ select {
 	font-size: 12px;
 }	
 
-
-/*
- * These animations were totally ripped off from Lucas Bebber
- * http://codepen.io/lbebber/pen/XJRdrV/
- */
-@keyframes flicker {
-  0% {
-    opacity: 0.84688;
-  }
-  5% {
-    opacity: 0.83625;
-  }
-  10% {
-    opacity: 0.97426;
-  }
-  15% {
-    opacity: 0.90222;
-  }
-  20% {
-    opacity: 0.83377;
-  }
-  25% {
-    opacity: 0.95831;
-  }
-  30% {
-    opacity: 0.86218;
-  }
-  35% {
-    opacity: 0.87985;
-  }
-  40% {
-    opacity: 0.8048;
-  }
-  45% {
-    opacity: 0.89521;
-  }
-  50% {
-    opacity: 0.99684;
-  }
-  55% {
-    opacity: 0.8347;
-  }
-  60% {
-    opacity: 0.95669;
-  }
-  65% {
-    opacity: 0.82683;
-  }
-  70% {
-    opacity: 0.89331;
-  }
-  75% {
-    opacity: 0.8511;
-  }
-  80% {
-    opacity: 0.88265;
-  }
-  85% {
-    opacity: 0.88624;
-  }
-  90% {
-    opacity: 0.96424;
-  }
-  95% {
-    opacity: 0.81607;
-  }
-  100% {
-    opacity: 0.81527;
-  }
-}
 
 
 @keyframes turn-on {
@@ -395,6 +331,7 @@ and (orientation: portrait) {
 	article .copy {
 		/* width(.article-image) * 376 / 702 */
 		margin-top: 107.1225071225071vw;
+		min-height: 75vh;
 	
 	}
 	
@@ -414,12 +351,6 @@ and (orientation: portrait) {
 	}
 }
 
-@media only screen and (max-width: 768px) and (orientation: landscape) {
-	.parallax__layer--back {
-		transform: translateZ(-1px) translateY(6vh) scale(2);
-	}
-}
-
 /* mobile */
 @media only screen and (max-width: 360px) {
 	header h1 {
@@ -434,9 +365,9 @@ and (orientation: portrait) {
 		font-size: 13px;
 	}
 	
-}
+} */
 
-/* mobile */
+/* small mobile */
 @media only screen and (max-width: 320px) {
 	header h1 {
 		font-size: 11px;

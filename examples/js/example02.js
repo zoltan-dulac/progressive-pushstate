@@ -6,6 +6,7 @@ var example1 = new function () {
 		cache = {},
 		currentF,
 		$content = $('#content'),
+		$screenReaderAlert = $('#screen-reader-alert'),
 		$body = $('body'),
 		currentState,
 		newContent,
@@ -15,9 +16,7 @@ var example1 = new function () {
 	me.init = function () {
 		
 		
-		pp.init(me.popstateEvent, {
-			doPopstateOnload: true
-		});
+		pp.init(me.popstateEvent);
 	};
 	
 	me.popstateEvent = function(e) {
@@ -54,12 +53,15 @@ var example1 = new function () {
 					$body.on(animationend, hideTransitionEndEvent);
 					$body.removeClass('show').addClass('hide');
 					
+					readATNowShowingMessage(currentState.f);
+					
 				})
 				.fail(function () {
 					/*
 					 * If this animation fails, inform the user 
 					 */
 					$content.html('File Not Found');
+					$screenReaderAlert.html('Requested page does not exist.');
 				});
 		
 		/*
@@ -72,9 +74,17 @@ var example1 = new function () {
 			$body.on(animationend, hideTransitionEndEvent);
 			newContent = cache[currentState.f];
 			$body.removeClass('show').addClass('hide');
-			
+			readATNowShowingMessage(currentState.f);
 		}
  	};
+ 	
+ 	/*
+ 	 * Updates the page's alert area that assistive technologies such as 
+ 	 * screenreaders will use to inform the user the page has changed.
+ 	 */
+ 	function readATNowShowingMessage(pageName) {
+ 		$screenReaderAlert.html('Now viewing <strong>' + pageName + '<strong> page.');
+ 	}
  	
  	function hideTransitionEndEvent(e) {
  		/*

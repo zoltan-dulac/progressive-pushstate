@@ -61,6 +61,9 @@ var example1 = new function () {
  	}
  	
  	function showTransitionEndEvent(e) {
+ 		/*
+ 		 * scroll to the top of the page and clean up the page.
+ 		 */
  		window.scrollTo(0, 0);
  		$body.off(animationend, showTransitionEndEvent);
  		$body.removeClass('show hide');

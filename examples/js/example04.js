@@ -8,7 +8,7 @@ var example4 = new function () {
 		
 		
 		pp.init(me.popstateEvent, {
-			doPopstateOnload: true
+			collapseMulti: true
 		});
 		
 		tableEl.addEventListener('animationstart', animationendEvent);
@@ -20,7 +20,6 @@ var example4 = new function () {
 	}
 	
 	function animationendEvent(e) {
-		console.log('x', e);
 		tableEl.classList.add('animation-done');
 	}
 	

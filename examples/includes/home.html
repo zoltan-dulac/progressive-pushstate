@@ -1,5 +1,5 @@
 <picture >
-	<source srcset="images/photos/invaders-portrait.jpg" media="(orientation: portrait)">
+	<source srcset="images/photos/invaders-portrait.jpg" media="(max-width: 768px) and (orientation: portrait)">
 	<source srcset="images/photos/invaders-landscape.jpg" media="(orientation: landscape)">
 	<img class="article-image parallax__layer parallax__layer--back" srcset="images/photos/invaders-landscape.jpg" alt="Photo of arcade game Space Invaders.">
 </picture>
@@ -15,8 +15,8 @@
 		JavaScript instead of going back to the server to load a different page.
 		Furthermore, if the URL of this resultant page is shared via email or
 		social media, the web server can parse the query string and render the page's
-		state on the server, thereby increasing rendering time at page load time
-		(which is an useful if the page is very JavaScript heavy and page load takes
+		state on the server, thereby decreasing rendering time at page load time
+		(which is useful if the page is very JavaScript heavy and page load takes
 		a while)
 	</p>
 
@@ -27,5 +27,7 @@
 		this is impossible to do if reloading the whole page from the server.
 	</p>
 
+ 	<p>Text on the video game pages taken from <a href=
+		"https://en.wikipedia.org/">Wikipedia</a></p>
 </div>
 </div>

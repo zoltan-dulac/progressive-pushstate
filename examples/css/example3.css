@@ -27,7 +27,6 @@ main, form{
 }
 
 article {
-	
 	display: inline-block;
 	background: white;
 	font-size: 20px;
@@ -37,8 +36,9 @@ article {
 	line-height: 1.2;
 	color: #000;
 	letter-spacing: 0.1em;
-	transform: translateZ(0);
 	transform-origin: 50% 0%;
+	transform: translateZ(0) translateY(0);
+	will-change: transform, opacity;
 	font-size: 1em;
 	
 }

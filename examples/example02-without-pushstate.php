@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 
 		
-		<title>Progressive Pushstate Example 2 - progressive enhanced AJAX</title>
+		<title>Video game example without pushstate library.</title>
 		<meta name="description" content="">
 		<meta name="author" content="Zoltan Hawryluk">
 
@@ -14,19 +14,37 @@
 	</head>
 
 	<body>
-		<header>
-			<h1>Video Games for the 1980s</h1>
-		</header>
-		<nav>
-			<ul>
-				<li><a href="?f=donkey-kong">Donkey Kong</a></li>
-				<li><a href="?f=pac-man">Pac-Man</a></li>
-				<li><a href="?f=robotron">Robotron 2084</a></li>
-				<li><a href="?f=tempest">Tempest</a></li>
-			</ul>
-		</nav>
 		
-		<article>
+		
+		<div class="parallax">
+		<header>
+				<h1>Video Games of the <small>1980s</small></h1>
+		</header>
+			<nav class="fixedsticky">
+			<ul>
+					<li><a class="pp-link" href="?f=home">Home</a></li>
+					<li><a class="pp-link" href="?f=donkey-kong">Donkey Kong</a></li>
+					<li><a class="pp-link" href="?f=pac-man">Pac-Man</a></li>
+					<li><a class="pp-link" href="?f=robotron">Robotron</a></li>
+					<li><a class="pp-link" href="?f=tempest">Tempest</a></li>
+			</ul>
+				<form class="pp-form" data-pp-events="change">
+					<select name="f">
+						<option value="home" selected>Home</option>
+						<option value="donkey-kong">Donkey Kong</option>
+						<option value="pac-man">Pac-Man</option>
+						<option value="robotron">Robotron</option>
+						<option value="tempest">Tempest</option>
+					</select>
+				</form>
+		</nav>
+			<div id="screen-reader-alert"
+				class="visually-hidden"
+				role="alert"
+				aria-relevant="all"
+				aria-live="assertive"
+			>Now displaying the <strong class="page-name"><?php echo $_GET["f"]; ?></strong> page.</div>
+			<article id="content">
 		<?php
 			
 			if (isset($_GET["f"])) {
@@ -37,8 +55,8 @@
 			include "includes/" . $fragment . ".html";
 		?>
 		</article>
+		</div>
 		
-		<script src="../js/progressive-pushstate.js"></script>
-		<script src="js/example02.js"></script>
+		
 	</body>
 </html>

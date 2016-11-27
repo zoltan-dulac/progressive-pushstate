@@ -29,19 +29,25 @@
 					<li><a class="pp-link" href="?f=home">Home</a></li>
 					<li><a class="pp-link" href="?f=donkey-kong">Donkey Kong</a></li>
 					<li><a class="pp-link" href="?f=pac-man">Pac-Man</a></li>
-					<li><a class="pp-link" href="?f=robotron">Robotron 2084</a></li>
+					<li><a class="pp-link" href="?f=robotron">Robotron</a></li>
 					<li><a class="pp-link" href="?f=tempest">Tempest</a></li>
 				</ul>
 				<form class="pp-form" data-pp-events="change">
 					<select name="f">
-						<option value="home">Home</option>
+						<option value="home" selected>Home</option>
 						<option value="donkey-kong">Donkey Kong</option>
 						<option value="pac-man">Pac-Man</option>
-						<option value="robotron">Robotron 2048</option>
+						<option value="robotron">Robotron</option>
 						<option value="tempest">Tempest</option>
 					</select>
 				</form>
 			</nav>
+			<div id="screen-reader-alert"
+				class="visually-hidden"
+				role="alert"
+				aria-relevant="all"
+				aria-live="assertive"
+			>Now displaying the <strong class="page-name"><?php echo $_GET["f"]; ?></strong> page.</div>
 			<article id="content" >
 				<!-- 
 					* We are not doing the server render on page load here so we can test
