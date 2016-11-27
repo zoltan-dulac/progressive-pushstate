@@ -4,11 +4,16 @@
 		<meta charset="utf-8">
 
 		<title> Progressive Pushstate Example 4 - Filtering Data</title>
-		<meta name="description"
-		content="Progressive Pushstate Example 1 - An Example Of How Links Can Populate a Form.">
+		<meta property="og:title" content="Progressive Pushstate Example 4 - A Table Filter With History" />
+		<meta property="og:description" content="An example of how to use progressive-pushstate.js to filter items in a table with history." />
+		<meta property="og:image" content="http://useragentman.com/examples/progressive-pushstate/examples/previews/example04.jpg" />
+		
+		<meta name="twitter:card" content="photo">
+		<meta name="twitter:title" content="Progressive Pushstate Example 4 - A Table Filter With History">
+		<meta name="twitter:image" content="http://useragentman.com/examples/progressive-pushstate/examples/previews/example04.jpg">
 		<meta name="author" content="Zoltan Hawryluk">
 
-		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 		<link href="css/example4.css" type="text/css" rel="stylesheet" />
 	</head>
 

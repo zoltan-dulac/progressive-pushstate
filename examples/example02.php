@@ -5,14 +5,18 @@
 
 		
 		<title>
-			Progressive Pushstate Example 2 - A Responsive Header Nav Using Links 
-			and Select Form Widget.
+			Progressive Pushstate Example 2 - A Responsive Header Nav Using Links and a Select Form Widget.
 		</title>
-		<meta name="description" 
-			content="Progressive Pushstate Example 2 - A Responsive Header Nav Using Links and Select Form Widget.">
+		<meta property="og:title" content="Progressive Pushstate Example 2 - A Responsive Header Nav Using Links and a Select Form Widget." />
+		<meta property="og:description" content="An example of how to use progressive-pushstate.js to create simply coded responsive navigation bars." />
+		<meta property="og:image" content="http://useragentman.com/examples/progressive-pushstate/examples/previews/example02.jpg" />
+		
+		<meta name="twitter:card" content="photo">
+		<meta name="twitter:title" content="Progressive Pushstate Example 2 - A Responsive Header Nav Using Links and a Select Form Widget.">
+		<meta name="twitter:image" content="http://useragentman.com/examples/progressive-pushstate/examples/previews/example02.jpg">
 		<meta name="author" content="Zoltan Hawryluk">
 
-		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 
 		<link href="css/example2.css" type="text/css" rel="stylesheet" />
 	</head>
