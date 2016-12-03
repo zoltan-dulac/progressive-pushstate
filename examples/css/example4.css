@@ -95,6 +95,10 @@ label {
 	white-space: nowrap;
 }
 
+caption {
+	margin: 1em 0;
+}
+
 .field-group-container {
 	float: left;
 	margin-top: 10px;

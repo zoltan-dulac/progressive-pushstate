@@ -15,6 +15,28 @@
 
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 		<link href="css/example4.css" type="text/css" rel="stylesheet" />
+		
+		<?php
+			$levelParam = isset($_GET["level"]) ? $_GET["level"] : null;
+				
+			$currentLevels = $levelParam ? explode(",", $levelParam) : array();
+			$currentSection = isset($_GET["section"]) ? $_GET["section"] : null;
+			
+			$captionSection = ($currentSection == null) ? 'all sections' : str_replace("-", " ", $currentSection);
+			
+			if ($currentLevels == null || sizeof($currentLevels) == 3) {
+				$captionLevel = 'of WCAG A, AA and AAA';
+			} else {
+				switch (sizeof($currentLevels)) {
+					case 1:
+						$captionLevel = 'of WCAG Level ' . str_replace("level-", " ", $currentLevels[0]);
+						break;
+					case 2:
+						$captionLevel = 'of WCAG Levels ' . str_replace("level-", " ", $currentLevels[0]) . ' and ' . str_replace("level-", " ", $currentLevels[0]);
+						break;
+				}
+			}
+		?>
 	</head>
 
 	<body>
@@ -45,12 +67,15 @@
 		</form>
 
 		<table id="wcag-requirements">
+			<caption role="alert" aria-live="assertive">
+				<?php echo "This is a table that contains $captionSection $captionLevel."; ?>
+			</caption>
 			<thead>
 				<tr>
-					<th class="sortable" data-href="?this=that">Section</th>
-					<th class="sortable">Guideline</th>
-					<th class="sortable">Summary</th>
-					<th class="sortable">Level</th>
+					<th class="sortable" data-href="?this=that" scope="col">Section</th>
+					<th class="sortable" scope="col">Guideline</th>
+					<th class="sortable" scope="col">Summary</th>
+					<th class="sortable" scope="col">Level</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -59,10 +84,6 @@
 				 * Go through each line in the data file and place them in a table row.
 				 */
 				$handle = fopen("data/wcag.dat", "r");
-				$levelParam = isset($_GET["level"]) ? $_GET["level"] : null;
-				
-				$currentLevels = $levelParam ? explode(",", $levelParam) : array();
-				$currentSection = isset($_GET["section"]) ? $_GET["section"] : null;
 				
 				if ($handle) {
 				    while (($line = fgets($handle)) !== false) {

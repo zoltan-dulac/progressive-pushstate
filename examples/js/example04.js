@@ -1,7 +1,8 @@
 var example4 = new function () {
 	var me = this,
 		tableEl = document.getElementById('wcag-requirements'),
-		rowEls = tableEl.querySelectorAll('#wcag-requirements tbody tr');
+		rowEls = tableEl.querySelectorAll('#wcag-requirements tbody tr'),
+		captionEl = tableEl.getElementsByTagName('caption')[0];
 	
 	me.init = function () {
 		var el, i, cells, sectionCell, levelCell;
@@ -31,7 +32,9 @@ var example4 = new function () {
 			levelRows,
 			sectionRows,
 			rowEl, i,
-			rowClassList;
+			rowClassList,
+			captionSection = (currentState.section == null) ? 'all sections' : currentState.section.replace('-', ' '),
+			captionLevel;
 		
 		
 		for (i=0; i<rowEls.length; i++) {
@@ -45,6 +48,26 @@ var example4 = new function () {
 				rowClassList.add('hide');
 			}
 		}
+		
+		
+		
+		if (!level || level.length === 3) {
+			captionLevel = 'of WCAG A, AA and AAA';
+		} else {
+			switch (typeof(level)) {
+				case 'string':
+					captionLevel = 'of WCAG Level ' + level.replace('level-', '');
+					break;
+				default:
+					captionLevel = 'of WCAG Levels ' + level[0].replace('level-', '') + ' and ' + level[1].replace('level-', '');
+					break;
+			}
+		}
+		
+		captionEl.innerHTML = 'This is a table that contains ' + captionSection + ' ' + captionLevel;
+		
+		
+ 	
 	};
 };
 

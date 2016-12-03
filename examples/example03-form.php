@@ -31,8 +31,8 @@
 			<label for="country">Country: <input autofocus type="text" id="country" name="country" placeholder="Please enter in a country." autocomplete="off" value="<?php echo $country ?>"/></label>
 		</form>
 		
-		<main>
-			<article id="content">
+		<main aria-live="assertive" role="alert">
+			<article id="content" >
 			<?php
 				include "showCountries.php";
 			?>

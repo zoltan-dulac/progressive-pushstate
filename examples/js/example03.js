@@ -37,7 +37,6 @@ var example3 = new function () {
 					cache[currentState.f] = newContent;
 					$article.on(animationend, hideTransitionEndEvent);
 					$article.removeClass('show').addClass('hide');
-					
 				})
 				.fail(function () {
 					$content.html('File Not Found');
@@ -50,6 +49,7 @@ var example3 = new function () {
 			
 		}
  	};
+ 	
  	
  	function hideTransitionEndEvent(e) {
  		$article.off(animationend, hideTransitionEndEvent);
