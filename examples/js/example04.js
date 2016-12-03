@@ -8,9 +8,7 @@ var example4 = new function () {
 		var el, i, cells, sectionCell, levelCell;
 		
 		
-		pp.init(me.popstateEvent, {
-			collapseMulti: true
-		});
+		pp.init(me.popstateEvent);
 		
 		tableEl.addEventListener('animationstart', animationendEvent);
 		tableEl.addEventListener('animationend', animationendEvent);
@@ -26,7 +24,7 @@ var example4 = new function () {
 	
 	me.popstateEvent = function (e) {
 		var currentState = e.state,
-			level = currentState.level,
+			level = currentState['level[]'],
 			section = currentState.section,
 			classes,
 			levelRows,
@@ -34,15 +32,21 @@ var example4 = new function () {
 			rowEl, i,
 			rowClassList,
 			captionSection = (currentState.section == null) ? 'all sections' : currentState.section.replace('-', ' '),
-			captionLevel;
+			captionLevel,
+			visibleRowCount = 0;
 		
 		
 		for (i=0; i<rowEls.length; i++) {
 			rowEl = rowEls[i];
 			rowClassList = rowEl.classList;
+			rowClassList.remove('even');
 			if ((!level || pp.isInStateProperty(level, rowEl.dataset.level)) && (!section || rowClassList.contains(section))) {
 				rowClassList.remove('hide');
 				rowClassList.add('show');
+				if (visibleRowCount % 2 === 0) {
+					rowClassList.add('even');
+				} 
+				visibleRowCount++;
 			} else {
 				rowClassList.remove('show');
 				rowClassList.add('hide');

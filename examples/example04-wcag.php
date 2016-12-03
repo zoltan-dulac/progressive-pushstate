@@ -17,12 +17,28 @@
 		<link href="css/example4.css" type="text/css" rel="stylesheet" />
 		
 		<?php
-			$levelParam = isset($_GET["level"]) ? $_GET["level"] : null;
+			$currentLevels = isset($_GET["level"]) ? $_GET["level"] : null;
 				
-			$currentLevels = $levelParam ? explode(",", $levelParam) : array();
+			//$currentLevels = $levelParam ? explode(",", $levelParam) : array();
 			$currentSection = isset($_GET["section"]) ? $_GET["section"] : null;
 			
 			$captionSection = ($currentSection == null) ? 'all sections' : str_replace("-", " ", $currentSection);
+			
+			$wcagLevels = array('level-a', 'level-aa', 'level-aaa');
+			$checkedState = array(
+				'level-A' => '',
+				'level-AA' => '',
+				'level-AAA' => ''
+			);
+			
+			if ($currentLevels != null) {
+				foreach ($wcagLevels as &$level) {
+					if(in_array($level, $currentLevels)){
+					  ${"checkedState[" . $level ."]"} = 'checked';
+					}
+				}
+			}
+			
 			
 			if ($currentLevels == null || sizeof($currentLevels) == 3) {
 				$captionLevel = 'of WCAG A, AA and AAA';
@@ -32,7 +48,7 @@
 						$captionLevel = 'of WCAG Level ' . str_replace("level-", " ", $currentLevels[0]);
 						break;
 					case 2:
-						$captionLevel = 'of WCAG Levels ' . str_replace("level-", " ", $currentLevels[0]) . ' and ' . str_replace("level-", " ", $currentLevels[0]);
+						$captionLevel = 'of WCAG Levels ' . str_replace("level-", " ", $currentLevels[0]) . ' and ' . str_replace("level-", " ", $currentLevels[1]);
 						break;
 				}
 			}
@@ -59,9 +75,29 @@
 				</div>
 			
 				<div class="field-group-container">
-					<label for="level-a"><input id="level-a" name="level" value="level-A" type="checkbox" /> Level A</label>
-					<label for="level-aa"><input id="level-aa" name="level" value="level-AA" type="checkbox" /> Level AA</label>
-					<label for="level-aaa"><input id="level-aaa" name="level" value="level-AAA" type="checkbox" /> Level AAA</label>
+					<label for="level-a">
+						<input 
+							id="level-a"
+							name="level[]"
+							value="level-A"
+							type="checkbox"
+							<?php echo $checkedState["level-A"]; ?>
+						/>Level A</label>
+					<label for="level-aa">
+						<input 
+							id="level-aa"
+							name="level[]"
+							value="level-AA"
+							type="checkbox" />Level AA</label>
+							<?php echo $checkedState["level-AA"]; ?>
+					<label for="level-aaa">
+						<input 
+							id="level-aaa"
+							name="level[]"
+							value="level-AAA"
+							type="checkbox"
+							<?php echo $checkedState["level-AAA"]; ?>
+						/>Level AAA</label>
 				</div>
 			</fieldset>
 		</form>
@@ -84,7 +120,7 @@
 				 * Go through each line in the data file and place them in a table row.
 				 */
 				$handle = fopen("data/wcag.dat", "r");
-				
+				$visibleRowCount = 0;
 				if ($handle) {
 				    while (($line = fgets($handle)) !== false) {
 				    	list($wcagItem, $url, $name, $desc, $level) = array_map('trim', explode("\t", $line));
@@ -92,11 +128,16 @@
 							$levelData = "level-$level";
 							$sectionClass = "section-$section";
 							
+							
 							if (
 								(sizeof($currentLevels) == 0 || in_array($levelData, $currentLevels)) && 
 								(!$currentSection || $currentSection == $sectionClass)
 							) {
 								$visibilityClass = 'show';
+								if ($visibleRowCount % 2 === 0) {
+									$visibilityClass .= ' even';
+								} 
+								$visibleRowCount++;
 							} else {
 								$visibilityClass = 'hide';
 							}
