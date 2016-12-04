@@ -5,7 +5,7 @@
 
 		
 		<title>
-			Progressive Pushstate Example 3 - A Search Example With History
+			Progressive Pushstate Example 2 - A Search Example With History
 		</title>
 		<meta property="og:title" content="Progressive Pushstate Example 3 - A Search Example With History" />
 		<meta property="og:description" content="An example of how to use progressive-pushstate.js to create client side search pages that implement browser history." />
@@ -18,7 +18,7 @@
 
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 		
-		<link href="css/example3.css" type="text/css" rel="stylesheet" />
+		<link href="css/example02.css" type="text/css" rel="stylesheet" />
 	</head>
 
 	<body>
@@ -42,6 +42,6 @@
 		
 		<!-- not needed for progressive-pushstate, but used in page code -->
 		<script src="js/jquery-3.1.1.min.js"></script>
-		<script src="js/example03.js"></script>
+		<script src="js/example02.js"></script>
 	</body>
 </html>

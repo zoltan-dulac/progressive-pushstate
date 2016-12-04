@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 
-		<title> Progressive Pushstate Example 4 - Filtering Data</title>
+		<title> Progressive Pushstate Example 3 - Filtering Data</title>
 		<meta property="og:title" content="Progressive Pushstate Example 4 - A Table Filter With History" />
 		<meta property="og:description" content="An example of how to use progressive-pushstate.js to filter items in a table with history." />
 		<meta property="og:image" content="http://useragentman.com/examples/progressive-pushstate/examples/previews/example04.jpg" />
@@ -14,7 +14,7 @@
 		<meta name="author" content="Zoltan Hawryluk">
 
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-		<link href="css/example4.css" type="text/css" rel="stylesheet" />
+		<link href="css/example03.css" type="text/css" rel="stylesheet" />
 		
 		<?php
 			$currentLevels = isset($_GET["level"]) ? $_GET["level"] : null;
@@ -57,7 +57,7 @@
 
 	<body>
 		
-		<form class="pp-form">
+		<form class="pp-form" autocomplete="off">
 			
 			<fieldset>
 				<legend>Filters</legend>
@@ -158,6 +158,6 @@
 
 		
 		<script src="../js/progressive-pushstate.js"></script>
-		<script src="js/example04.js"></script>
+		<script src="js/example03.js"></script>
 	</body>
 </html>

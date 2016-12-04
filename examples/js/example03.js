@@ -1,69 +1,78 @@
 var example3 = new function () {
-	
 	var me = this,
-		outputEl = document.getElementById('output'),
-		$jxr,
-		cache = {},
-		currentF,
-		$content = $('#content'),
-		$article = $('article'),
-		currentState,
-		newContent,
-		animationend = 'animationend webkitAnimationEnd MSAnimationEnd oAnimationEnd',
-		animationDir;
+		tableEl = document.getElementById('wcag-requirements'),
+		rowEls = tableEl.querySelectorAll('#wcag-requirements tbody tr'),
+		captionEl = tableEl.getElementsByTagName('caption')[0];
 	
 	me.init = function () {
+		var el, i, cells, sectionCell, levelCell;
+		
+		
 		pp.init(me.popstateEvent);
+		
+		tableEl.addEventListener('animationstart', animationendEvent);
+		tableEl.addEventListener('animationend', animationendEvent);
 	};
 	
-	me.popstateEvent = function(e) {
-		currentState = e.state;
+	function animationstartEvent(e) {
+		tableEl.classList.remove('animation-done');
+	}
+	
+	function animationendEvent(e) {
+		tableEl.classList.add('animation-done');
+	}
+	
+	me.popstateEvent = function (e) {
+		var currentState = e.state,
+			level = currentState['level[]'],
+			section = currentState.section,
+			classes,
+			levelRows,
+			sectionRows,
+			rowEl, i,
+			rowClassList,
+			captionSection = (currentState.section == null) ? 'all sections' : currentState.section.replace('-', ' '),
+			captionLevel,
+			visibleRowCount = 0;
 		
-		var cachedData = cache[currentState.country];
 		
-		if (pp.lastState && pp.lastState._ppPageNum > e.state._ppPageNum) {
-			animationDir = 'left';
-		} else {
-			animationDir = 'right';
+		for (i=0; i<rowEls.length; i++) {
+			rowEl = rowEls[i];
+			rowClassList = rowEl.classList;
+			rowClassList.remove('even');
+			if ((!level || pp.isInStateProperty(level, rowEl.dataset.level)) && (!section || rowClassList.contains(section))) {
+				rowClassList.remove('hide');
+				rowClassList.add('show');
+				if (visibleRowCount % 2 === 0) {
+					rowClassList.add('even');
+				} 
+				visibleRowCount++;
+			} else {
+				rowClassList.remove('show');
+				rowClassList.add('hide');
+			}
 		}
 		
-		$article.addClass(animationDir);
 		
-		if (cachedData === undefined) {
-			
-			$jxr = $.ajax('showCountries.php?country=' + currentState.country)
-				.done(function () {
-					newContent = $jxr.responseText;
-					cache[currentState.f] = newContent;
-					$article.on(animationend, hideTransitionEndEvent);
-					$article.removeClass('show').addClass('hide');
-				})
-				.fail(function () {
-					$content.html('File Not Found');
-				});
-			 
+		
+		if (!level || level.length === 3) {
+			captionLevel = 'of WCAG A, AA and AAA';
 		} else {
-			$article.on(animationend, hideTransitionEndEvent);
-			newContent = cache[currentState.country];
-			$article.removeClass('show').addClass('hide');
-			
+			switch (typeof(level)) {
+				case 'string':
+					captionLevel = 'of WCAG Level ' + level.replace('level-', '');
+					break;
+				default:
+					captionLevel = 'of WCAG Levels ' + level[0].replace('level-', '') + ' and ' + level[1].replace('level-', '');
+					break;
+			}
 		}
- 	};
- 	
- 	
- 	function hideTransitionEndEvent(e) {
- 		$article.off(animationend, hideTransitionEndEvent);
-		$article.on(animationend, showTransitionEndEvent);
-		$article.html(newContent);
 		
-		$article.removeClass('hide').addClass('show');
- 	}
+		captionEl.innerHTML = 'This is a table that contains ' + captionSection + ' ' + captionLevel;
+		
+		
  	
- 	function showTransitionEndEvent(e) {
- 		$article.off(animationend, showTransitionEndEvent);
- 		$article.removeClass('show hide left right');
- 	}
-	 
+	};
 };
 
 example3.init();

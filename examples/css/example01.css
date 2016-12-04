@@ -223,19 +223,32 @@ form:before {
 	top: -2px;
 }
 
-select {
+select, .pp-no-support-button {
 	font-family: "PressStart2P", monospace;
 	text-transform: uppercase;
 	-webkit-appearance: none;
 	appearance: none;
 	border: none;
 	background: #eee;
-	padding: 5px 5px 5px 50px;
 	box-shadow: 2px 2px 2px #000;
 	font-size: 12px;
-}	
+}
 
+select {
+	padding: 5px 5px 5px 50px;
+}
 
+.pp-no-support-button {
+	padding: 5px;
+}
+
+.pp-support .pp-no-support-button {
+	display: none;
+}
+
+.pp-no-support .pp-no-support-button {
+	display: inline-block;
+}
 
 @keyframes turn-on {
   0% {

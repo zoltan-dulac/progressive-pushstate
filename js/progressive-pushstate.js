@@ -25,7 +25,8 @@ var pp = new function () {
 		// Needed by unentify()
 		ampEntRe = /&amp;/g,
 		ltEntRe = /&lt;/g,
-		gtEntRe = /&gt;/g;
+		gtEntRe = /&gt;/g,
+		htmlEl = document.getElementsByTagName('html')[0];
 
 	
 	me.lastState = {};
@@ -51,7 +52,17 @@ var pp = new function () {
 	 * 
 	 */
 	me.init = function (popstateEvent, options) {
-		me.options = (options || {}); 
+		/*
+		 * First .. check for support for this library.  If this browser doesn't 
+		 * have support, set a class on the body tag to indicate so, and leave.
+		 */
+		if (history.pushState) {
+			htmlEl.className += 'pp-support';
+		} else {
+			htmlEl.className += 'pp-no-support';
+			return;
+		}
+		me.options = (options || {});
 		
 		var formEls = document.getElementsByClassName('pp-form'),
 			formElsLen = formEls.length,

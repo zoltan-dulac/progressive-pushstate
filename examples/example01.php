@@ -5,21 +5,23 @@
 
 		
 		<title>
-			Progressive Pushstate Example 2 - A Responsive Header Nav Using Links 
-			and Select Form Widget.
+			Progressive Pushstate Example 1 - A Responsive Header Nav Using Links and a Select Form Widget.
 		</title>
-		<meta name="description" 
-			content="Progressive Pushstate Example 2 - A Responsive Header Nav Using Links and Select Form Widget.">
+		<meta property="og:title" content="Progressive Pushstate Example 2 - A Responsive Header Nav Using Links and a Select Form Widget." />
+		<meta property="og:description" content="An example of how to use progressive-pushstate.js to create simply coded responsive navigation bars." />
+		<meta property="og:image" content="http://useragentman.com/examples/progressive-pushstate/examples/previews/example02.jpg" />
+		
+		<meta name="twitter:card" content="photo">
+		<meta name="twitter:title" content="Progressive Pushstate Example 2 - A Responsive Header Nav Using Links and a Select Form Widget.">
+		<meta name="twitter:image" content="http://useragentman.com/examples/progressive-pushstate/examples/previews/example02.jpg">
 		<meta name="author" content="Zoltan Hawryluk">
 
-		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 
-		<link href="css/example2.css" type="text/css" rel="stylesheet" />
+		<link href="css/example01.css" type="text/css" rel="stylesheet" />
 	</head>
 
 	<body>
-		
-		
 		<div class="parallax">
 			<header>
 				<h1>Video Games of the <small>1980s</small></h1>
@@ -40,6 +42,9 @@
 						<option value="robotron">Robotron</option>
 						<option value="tempest">Tempest</option>
 					</select>
+					
+					<input class="pp-no-support-button" type="submit" aria-label="Go to page selected" value="Go" />
+					
 				</form>
 			</nav>
 			<div id="screen-reader-alert"
@@ -48,11 +53,15 @@
 				aria-relevant="all"
 				aria-live="assertive"
 			>Now displaying the <strong class="page-name"><?php echo $_GET["f"]; ?></strong> page.</div>
-			<article id="content" >
-				<!-- 
-					* We are not doing the server render on page load here so we can test
-					* whether or not this is detremental to SEO.
-				-->
+			<article id="content">
+				<?php
+					if (isset($_GET["f"])) {
+						$fragment = $_GET["f"];
+					} else {
+						$fragment = "home";
+					}
+					include "includes/" . $fragment . ".html";
+				?>
 			</article>
 		</div>
 		
@@ -60,6 +69,6 @@
 		
 		<!-- not needed for progressive-pushstate, but used in page code -->
 		<script src="js/jquery-3.1.1.min.js"></script>
-		<script src="js/example02-no-server-render.js"></script>
+		<script src="js/example01.js"></script>
 	</body>
 </html>
