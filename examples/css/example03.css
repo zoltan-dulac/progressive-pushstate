@@ -40,15 +40,30 @@ table tbody tr div {
 }
 
 /*
- *  GPU accelleration in newer browsers.
+ * GPU accelleration in newer browsers. We prepare for animation optimization
+ * when the form is about to be interacted with. This is best practice 
+ * according to this excellent article:
+ *
+ * https://dev.opera.com/articles/css-will-change-property/
  */
-table tbody tr {
+form table tbody tr,
+form table tbody tr div {
+	will-change: auto;
+}
+
+form:hover + table tbody tr,
+form.has-focused-elements + table tbody tr {
 	will-change: display, opacity, padding, max-height;
+}
+
+form:hover + table tbody tr div,
+form.has-focused-elements + table tbody tr div {
+	will-change: display, max-height;
 }
 
 table tbody tr div {
 	overflow: hidden;
-	will-change: display, max-height;
+
 }
 
 table tbody tr.hide {
@@ -109,63 +124,6 @@ caption {
 	text-align: center;
 }
 
-@keyframes grow-row {
-  0% {
-    display: none;
-    opacity: 0;
-    padding: 0;
-    max-height: 0;
-  }
-  1% {
-    display: table-row;
-    opacity: 0;
-    padding: 0;
-    max-height: 0;
-  }
-  100% {
-  	display: table-row;
-    opacity: 1;
-    padding: 10px;
-    max-height: 6em;
-  }
-}
-
-@keyframes shrink-row {
-	0% {
-  	display: table-row;
-    opacity: 1;
-    padding: 10px;
-    max-height: 6em;
-  }
-  99% {
-    display: table-row;
-    opacity: 0;
-    padding: 0;
-    max-height: 0;
-  }
-	0% {
-    display: none;
-    opacity: 0;
-    padding: 0;
-    max-height: 0;
-  }
-  
-}
-
-@keyframes grow-text {
-  0% {
-  	display: none;
-    max-height: 0;
-  }
-  1% {
-  	display: block;
-    max-height: 0;
-  }
-  100% {
-  	display: block;
-    max-height: 6em;
-  }
-}
 
 /* tablet portrait */
 @media only screen and (max-width: 360px) {
@@ -173,3 +131,36 @@ caption {
 		font-size: 3.5vw;
 	}
 }
+
+@keyframes grow-row {
+  0% {
+    opacity: 0;
+    padding: 0;
+    max-height: 0;
+  }
+  1% {
+    opacity: 0;
+    padding: 0;
+    max-height: 0;
+  }
+  100% {
+  	opacity: 1;
+    padding: 10px;
+    max-height: 6em;
+  }
+}
+
+
+@keyframes grow-text {
+  0% {
+  	max-height: 0;
+  }
+  1% {
+  	max-height: 0;
+  }
+  100% {
+  	display: block;
+    max-height: 6em;
+  }
+}
+
