@@ -51,9 +51,17 @@ table tbody tr div {
 	will-change: display, max-height;
 }
 
+
 table tbody tr.hide {
+	display: none;
+}
+
+.pp-support table tbody tr.hide {
+	display: auto;
 	opacity: 0;
 }
+
+
 
 table.animation-done tbody tr.hide {
 	display: none;
@@ -167,9 +175,14 @@ caption {
   }
 }
 
-/* tablet portrait */
 @media only screen and (max-width: 360px) {
 	body {
 		font-size: 3.5vw;
+	}
+}
+
+@media only screen and (max-width: 767px) {	
+	label {
+		margin: 0 0.3em;
 	}
 }

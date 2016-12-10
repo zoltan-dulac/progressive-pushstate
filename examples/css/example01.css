@@ -242,12 +242,12 @@ select {
 	padding: 5px;
 }
 
-.pp-support .pp-no-support-button {
-	display: none;
+.pp-no-support-button {
+	display: inline-block;
 }
 
-.pp-no-support .pp-no-support-button {
-	display: inline-block;
+.pp-support .pp-no-support-button {
+	display: none;
 }
 
 @keyframes turn-on {

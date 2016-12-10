@@ -41,6 +41,7 @@ var pp = new function () {
 	 * 
 	 * - pushScrollState: enables the application to keep track of
 	 *	 scrollbar position in the app. (default: false)
+	 * 
 	 * - debounceTime: sets the debounce time for resize/scroll events
 	 *	 (default: 50)
 	 * 

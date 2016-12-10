@@ -17,28 +17,34 @@
 		<link href="css/example03.css" type="text/css" rel="stylesheet" />
 		
 		<?php
-			$currentLevels = isset($_GET["level"]) ? $_GET["level"] : null;
-				
-			//$currentLevels = $levelParam ? explode(",", $levelParam) : array();
+			$currentLevels = isset($_GET['level']) ? $_GET['level'] : null;
+			
 			$currentSection = isset($_GET["section"]) ? $_GET["section"] : null;
 			
 			$captionSection = ($currentSection == null) ? 'all sections' : str_replace("-", " ", $currentSection);
 			
-			$wcagLevels = array('level-a', 'level-aa', 'level-aaa');
+			$wcagLevels = array('level-A', 'level-AA', 'level-AAA');
 			$checkedState = array(
 				'level-A' => '',
 				'level-AA' => '',
 				'level-AAA' => ''
 			);
 			
+			$selectedState = array(
+				'section-1' => '',
+				'section-2' => '',
+				'section-3' => '',
+				'section-4' => ''
+			);
+			$selectedState[$currentSection] = 'selected';
+			
 			if ($currentLevels != null) {
 				foreach ($wcagLevels as &$level) {
 					if(in_array($level, $currentLevels)){
-					  ${"checkedState[" . $level ."]"} = 'checked';
+					  $checkedState[$level] = 'checked';
 					}
 				}
 			}
-			
 			
 			if ($currentLevels == null || sizeof($currentLevels) == 3) {
 				$captionLevel = 'of WCAG A, AA and AAA';
@@ -57,7 +63,7 @@
 
 	<body>
 		
-		<form class="pp-form" autocomplete="off">
+		<form class="pp-form" autocomplete="off" data-pp-events="submit">
 			
 			<fieldset>
 				<legend>Filters</legend>
@@ -66,10 +72,10 @@
 					<label for="section">Section: 
 						<select id="section" name="section">
 							<option value="">All</option>
-							<option value="section-1">Perceivable</option>
-							<option value="section-2">Operable</option>
-							<option value="section-3">Understandable</option>
-							<option value="section-4">Robust</option>
+							<option value="section-1" <?php echo $selectedState['section-1']?> >Perceivable</option>
+							<option value="section-2" <?php echo $selectedState['section-2']?>>Operable</option>
+							<option value="section-3" <?php echo $selectedState['section-3']?>>Understandable</option>
+							<option value="section-4" <?php echo $selectedState['section-4']?>>Robust</option>
 						</select>
 					</label>
 				</div>
@@ -88,8 +94,9 @@
 							id="level-aa"
 							name="level[]"
 							value="level-AA"
-							type="checkbox" />Level AA</label>
-							<?php echo $checkedState["level-AA"]; ?>
+							type="checkbox" 
+							<?php echo $checkedState["level-AA"]; ?>/>Level AA</label>
+							
 					<label for="level-aaa">
 						<input 
 							id="level-aaa"
@@ -98,6 +105,13 @@
 							type="checkbox"
 							<?php echo $checkedState["level-AAA"]; ?>
 						/>Level AAA</label>
+						
+					<!-- 
+				  * This button only appears when the library is not supported by the
+				  * browser, or if JavaScript is turned off
+					-->
+					<input class="pp-no-support-button" type="submit" 
+					  aria-label="Go to page selected" value="Go" />
 				</div>
 			</fieldset>
 		</form>
@@ -122,8 +136,8 @@
 				$handle = fopen("data/wcag.dat", "r");
 				$visibleRowCount = 0;
 				if ($handle) {
-				    while (($line = fgets($handle)) !== false) {
-				    	list($wcagItem, $url, $name, $desc, $level) = array_map('trim', explode("\t", $line));
+					while (($line = fgets($handle)) !== false) {
+						list($wcagItem, $url, $name, $desc, $level) = array_map('trim', explode("\t", $line));
 							list($section) = explode(".", $wcagItem);
 							$levelData = "level-$level";
 							$sectionClass = "section-$section";
@@ -147,10 +161,10 @@
 									<td><div>$desc</div></td>
 									<td><div>$level</div></td>
 								</tr>";
-				    }
-				    fclose($handle);
+					}
+					fclose($handle);
 				} else {
-				    echo '<p class="no-data">Sorry -- I can\'t find the data for this page.</p>';
+					echo '<p class="no-data">Sorry -- I can\'t find the data for this page.</p>';
 				} 
 				?>
 			</tbody>

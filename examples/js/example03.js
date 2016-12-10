@@ -53,8 +53,6 @@ var example3 = new function () {
 			}
 		}
 		
-		
-		
 		if (!level || level.length === 3) {
 			captionLevel = 'of WCAG A, AA and AAA';
 		} else {
