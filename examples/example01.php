@@ -9,11 +9,11 @@
 		</title>
 		<meta property="og:title" content="Progressive Pushstate Example 2 - A Responsive Header Nav Using Links and a Select Form Widget." />
 		<meta property="og:description" content="An example of how to use progressive-pushstate.js to create simply coded responsive navigation bars." />
-		<meta property="og:image" content="http://useragentman.com/examples/progressive-pushstate/examples/previews/example01.jpg" />
+		<meta property="og:image" content="http://useragentman.com/examples/progressive-pushstate/examples/images/previews/example01.jpg" />
 		
 		<meta name="twitter:card" content="photo">
 		<meta name="twitter:title" content="Progressive Pushstate Example 2 - A Responsive Header Nav Using Links and a Select Form Widget.">
-		<meta name="twitter:image" content="http://useragentman.com/examples/progressive-pushstate/examples/previews/example01.jpg">
+		<meta name="twitter:image" content="http://useragentman.com/examples/progressive-pushstate/examples/images/previews/example01.jpg">
 		<meta name="author" content="Zoltan Hawryluk">
 
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
