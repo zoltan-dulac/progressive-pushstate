@@ -172,6 +172,7 @@ caption {
   }
 }
 
+<<<<<<< HEAD
 @media only screen and (max-width: 360px) {
 	body {
 		font-size: 3.5vw;
@@ -183,3 +184,5 @@ caption {
 		margin: 0 0.3em;
 	}
 }
+=======
+>>>>>>> ad2b165b08af33b9078d0d92c376cd6ee7e05d9e

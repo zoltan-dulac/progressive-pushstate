@@ -1,5 +1,6 @@
 var example3 = new function () {
 	var me = this,
+		formEl = document.getElementsByTagName('form')[0],
 		tableEl = document.getElementById('wcag-requirements'),
 		rowEls = tableEl.querySelectorAll('#wcag-requirements tbody tr'),
 		captionEl = tableEl.getElementsByTagName('caption')[0];
@@ -10,9 +11,19 @@ var example3 = new function () {
 		
 		pp.init(me.popstateEvent);
 		
+		formEl.addEventListener('focus', formFocusinEvent, true);
+		formEl.addEventListener('blur', formFocusoutEvent, true);
 		tableEl.addEventListener('animationstart', animationendEvent);
 		tableEl.addEventListener('animationend', animationendEvent);
 	};
+	
+	function formFocusinEvent(e) {
+		formEl.classList.add('has-focused-elements');
+	}
+	
+	function formFocusoutEvent(e) {
+		formEl.classList.remove('has-focused-elements');
+	}
 	
 	function animationstartEvent(e) {
 		tableEl.classList.remove('animation-done');

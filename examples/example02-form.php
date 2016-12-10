@@ -9,11 +9,11 @@
 		</title>
 		<meta property="og:title" content="Progressive Pushstate Example 3 - A Search Example With History" />
 		<meta property="og:description" content="An example of how to use progressive-pushstate.js to create client side search pages that implement browser history." />
-		<meta property="og:image" content="http://useragentman.com/examples/progressive-pushstate/examples/previews/example03.jpg" />
+		<meta property="og:image" content="http://useragentman.com/examples/progressive-pushstate/examples/previews/example02.jpg" />
 		
 		<meta name="twitter:card" content="photo">
 		<meta name="twitter:title" content="Progressive Pushstate Example 3 - A Search Example With History">
-		<meta name="twitter:image" content="http://useragentman.com/examples/progressive-pushstate/examples/previews/example03.jpg">
+		<meta name="twitter:image" content="http://useragentman.com/examples/progressive-pushstate/examples/previews/example02.jpg">
 		<meta name="author" content="Zoltan Hawryluk">
 
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
