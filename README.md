@@ -165,8 +165,9 @@ The properties of the options object include:
 - doPopstateOnload: fire the popstateEvent onload (default: true)
 - defaultState: the initial default state of the application (default: {} or if a link with class "pp-default" exists, the URL of that link).
 - pushScrollState: (experimental) enables the application to keep track of scrollbar position in the app. (default: false)
-- debounceTime: (experimental) sets the debounce time for resize/scroll events default: 50)
-- keyDebounceTime: (experimental) sets the debounce time for form key events events default: 500)
+- debounceTime: (experimental) sets the debounce time for `resize` and `scroll` events default: 50)
+- keyDebounceTime: sets the debounce time for form `key*` and `input` events (default: 500)
+- collapseMulti: If a form element name can have multiple values submitted at once (e.g. radio buttons), this allows the values to be submitted into one variable (e.g. sortBy=name,age,phoneNumber) instead of the usual expanded way a form usually send them (e.g. sortBy=name&sortBy=age&sortBy=phoneNumber).
 
 ## Runtime Options
 
