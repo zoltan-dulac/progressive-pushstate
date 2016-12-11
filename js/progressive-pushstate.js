@@ -51,6 +51,8 @@ var pp = new function () {
 	 *	 (default: {} or if a link with class "pp-default" exists, the
 	 *	 URL of that link).
 	 * 
+	 * - keyDebounceTime: sets the debounce time for form key events events.
+	 *   (default: 500)
 	 */
 	me.init = function (popstateEvent, options) {
 		/*

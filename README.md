@@ -139,7 +139,8 @@ This form currently works like you expect it to (by giving the form data to the 
    ```
    {
 	   name: "Zoltan K. Hawryluk",
-	   country: "Canada"
+	   country: "Canada",
+	   submitButton: "Submit My Country"
    }
    ```
 
@@ -157,10 +158,9 @@ pp.init(popstateEvent, {
 });
 ```
 
-will execute the `popstateEvent` function when the page loads. 
+will execute the `popstateEvent` function when the page loads. This can be used, for example, if you decide not to implement any server side logic to render state on page load, but still like the idea of using the query string to control state.
 
-Other options include:
-
+The properties of the options object include:
 
 - doPopstateOnload: fire the popstateEvent onload (default: true)
 - defaultState: the initial default state of the application (default: {} or if a link with class "pp-default" exists, the URL of that link).
@@ -188,11 +188,13 @@ None.  This is plain ol' JavaScript, my friend.  You can use it with jQuery/Moo 
 
 This has been tested on the latest versions of Firefox, Safari, Opera and Chrome as well as Internet Explorer 10+.  Any browser that supports the [HTML5 Session Management API](http://caniuse.com/#search=pushstate) should support this library.
 
-It *should* work with the [history.js HTML5 Session Management API polyfill](https://github.com/browserstate/history.js), but this hasn't been tested as of Janauary 25, 2016.  We may be doing so in the future, but since this `progressive-pushstate.js` was build with progressive enhancement in mind, it was not our main focus (especially since, if a dev uses this library correctly, any application that uses it should work with the Session Management API, because it was coded with progressive enhancement in mind).
+It *should* work with the [history.js HTML5 Session Management API polyfill](https://github.com/browserstate/history.js), but this hasn't been tested.  We may be doing so in the future, but since this `progressive-pushstate.js` was build with progressive enhancement in mind, it was not our main focus (especially since, if a dev uses this library correctly, any application that uses it should work with the Session Management API, because it was coded with progressive enhancement in mind).
 
 ## Other Notes
 
-This document uses the word "we" a lot.  The only person it really refers to is [Zoltan Hawryluk](http://www.useragentman.com), since we want to make sure we are not speaking on anyone else's behalf.  However, it must be noted this libary does include code (`formData2QueryString`) originally written by [Matthew Eernisse](mde@fleegix.org) in March 2005 with bugfixes by [Mark Pruett](mark.pruett@comcast.net), multi-select support added by [Craig Anderson](craig@sitepoint.com) and HTML5 form element support by Zoltan Hawryluk.  I have never met these other developers, but they have done some great work.  Since this function is released under the Apache License, I have done the same for this whole library.
+This document uses the word "we" a lot (especially in this paragraph).  The only person it really refers to at the moment is [Zoltan Hawryluk](http://www.useragentman.com), since we want to make sure we are not speaking on anyone else's behalf.  However, it must be noted this libary does include code (`formData2QueryString`) originally written by [Matthew Eernisse](mde@fleegix.org) in March 2005 with bugfixes by [Mark Pruett](mark.pruett@comcast.net) and multi-select support added by [Craig Anderson](craig@sitepoint.com) (HTML5 form element support was added by Zoltan for this script).  We have never met these other developers, but they have done some great work.  Since this function is released under the Apache License, I have done the same for this whole library.
+
+We also want to make sure to mention that we encourage other folks to contribute/add/refactor/change this code as they see fit.  Please send us a pull request, and we'll see if we can make Zoltan's "we" into more of a community "we". :-)
 
 ## License
 
