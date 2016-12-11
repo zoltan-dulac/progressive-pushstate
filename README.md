@@ -191,6 +191,10 @@ This has been tested on the latest versions of Firefox, Safari, Opera and Chrome
 
 It *should* work with the [history.js HTML5 Session Management API polyfill](https://github.com/browserstate/history.js), but this hasn't been tested.  We may be doing so in the future, but since this `progressive-pushstate.js` was build with progressive enhancement in mind, it was not our main focus (especially since, if a dev uses this library correctly, any application that uses it should work with the Session Management API, because it was coded with progressive enhancement in mind).
 
+## More Information
+
+I have written a [fairly detailed blog post](http://www.useragentman.com/blog/?p=7221) about this library on my blog, [User Agent Man](http://www.useragentman.com/)
+
 ## Other Notes
 
 This document uses the word "we" a lot (especially in this paragraph).  The only person it really refers to at the moment is [Zoltan Hawryluk](http://www.useragentman.com), since we want to make sure we are not speaking on anyone else's behalf.  However, it must be noted this libary does include code (`formData2QueryString`) originally written by [Matthew Eernisse](mde@fleegix.org) in March 2005 with bugfixes by [Mark Pruett](mark.pruett@comcast.net) and multi-select support added by [Craig Anderson](craig@sitepoint.com) (HTML5 form element support was added by Zoltan for this script).  We have never met these other developers, but they have done some great work.  Since this function is released under the Apache License, I have done the same for this whole library.
