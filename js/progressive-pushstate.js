@@ -212,8 +212,11 @@ var pp = new function () {
 				scrollLeft = getScrollLeft(),
 				scrollTop = getScrollTop(),
 				state = me.lastState;
-
-			window.history.replaceState(state, '', url);
+				
+				state._scrollLeft = scrollLeft;
+				state._scrollTop = scrollTop;
+				
+				window.history.replaceState(state, '', url);
 		}
 	}
 	

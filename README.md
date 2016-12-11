@@ -3,14 +3,18 @@ Allow pushstate/popstate support using a [progressive-enhancement](https://en.wi
 
 ## Why Use This Library
 
-Let's suppose you have a page that has links on it that pass query string parameters to the same page that change the state in the page on the server side.  You want to be clever and improve performance by implemented JavaScript routines that do the same state changes on the client side in a nice, progressive-enhancement kind of way.  This library gives you a framework to do this, using the exact same URLs that you would on the server side without the need of [hash tags/fragment identifiers](https://en.wikipedia.org/wiki/Fragment_identifier).  This is important, since a lot of social media applications (e.g. Facebook) will not differentiate between pages that have different hash anchors, and will not allow different [meta information](https://developers.facebook.com/docs/sharing/webmasters) for different hash tag values.
+- You want the state of a web page to be rendered by both the client and the server side.
+- You want the state of a web page to be controlled by the page's query string.
+- You want to make sure that make sure your page's state can be shared correctly via email/social media/etc.
+- You want all of the above but you don't want to be tied into any specific framework (e.g. React, jQuery, Angular, etc)
+- You want all of the above implemented using progressive enhancement to ensure older browser's that don't support the library will still be able to use your application.
 
 Note that library allows the developer to not worry about browser history and back/forward button usage -- as long as s/he has set up the library correctly, everything should just work automatically (more on this later).
 
 ## What it is not
 
-This is not a library that will include a whole bunch of page state visual effects for free.  You must know JavaScript and be able to implement these yourself. 
-
+- This is not a library that will include a whole bunch of page state visual effects for free.  You must know JavaScript and be able to implement these yourself. 
+- It will not run JavaScript on the server side.
 ## How to Use it.
 
 ### Links
@@ -20,7 +24,7 @@ Let's assume you page has a bunch of links like this:
 <a href="/path/to/page?section=support">Customer Support</a>
 ```
 
-This link currently works like you (the developer) expect it to (by going to the server and fetching the relevant page), but now you want to be clever and have this link trigger an AJAX request that will only retrieve the HTML fragment of the page that is different from the original page (i.e. the content of the page without the header and footer).  
+This link currently works like you would expect it to (by going to the server and fetching the relevant page), but now you want to be clever and have this link trigger an AJAX request that will only retrieve the HTML fragment of the page that is different from the original page (i.e. the content of the page without the header and footer).  
 
 * First, add the `progressive-pushstate` script to the bottom of your page.
 
@@ -52,7 +56,7 @@ This link currently works like you (the developer) expect it to (by going to the
    };
    ```
 
-   Note that `e` will have a `state` property that will be an object containing the parsed CGI variables of the link that was clicked.  For example, if the URL clicked was `/path/to/page?section=support&level=2`, then the `state` object would be set to 
+   Note that `e` will have a `state` property that will be an object containing the parsed query string of the link that was clicked.  For example, if the URL clicked was `/path/to/page?section=support&level=2`, then the `state` object would be set to 
 
    ```
    {
@@ -73,19 +77,26 @@ This link currently works like you (the developer) expect it to (by going to the
    }
    ```
 
-   To ensure that your application maintains a progressively-enhanced design pattern, it is recommended to use hash tags only for the purpose of anchoring to a particular section to a page, since if JavaScript is turned off, these hash tags are never passed to the server, as per [section 4.1 of RFC 2396, "Uniform Resource Identifiers (URI)"](http://tools.ietf.org/html/rfc2396#section-4.1).
+   To ensure that your application maintains a progressively-enhanced design pattern, it is recommended to use hash tags only for the purpose of anchoring to a particular section to a page, since hash tags are never passed to the server (see [section 4.1 of RFC 2396, "Uniform Resource Identifiers (URI)"](http://tools.ietf.org/html/rfc2396#section-4.1)).
 
-   For more information, there a few examples included in the `progressive-pushstate` package in the `examples` directory:
-
+   A great example of how this works is in the desktop menu of [this example page](http://useragentman.com/examples/progressive-pushstate/examples/example01.php)
+   
+   
 ### Forms
 
 Let's assume you page has a form that looks like this:
 
 ```
-<a href="/path/to/page?section=support">Customer Support</a>
+<form>
+	 <input type="text" name="name" 
+	          placeholder="Your full name (first, middle and last)." />
+	 <input type="text" name="country" 
+	          placeholder="The country you live in."/>
+	 <input type="submit" name="submitButton" value="Submit My Country" />
+</form>
 ```
 
-This form currently works like you (the developer) expect it to (by giving the form data to the server and fetching the relevant result formatted in HTML), but now you want to be clever and have a form submit trigger an AJAX request that will only retrieve the HTML fragment of the page that is different from the original page (i.e. the content of the page without the header and footer).
+This form currently works like you expect it to (by giving the form data to the server and fetching a result page), but now you want to be clever and have a form submit trigger an AJAX request that will only retrieve the HTML fragment of the page that is different from the original page (i.e. the content of the page without the header and footer).
 
 * First, just as before, add the `progressive-pushstate` script to the bottom of your page.
 
@@ -98,7 +109,7 @@ This form currently works like you (the developer) expect it to (by giving the f
 * Next, just add the `pp-form` class to the form you want this AJAX magic to happen with.  You should also put all events in the form that can trigger an ajax request inside the `data-pp-events` attribute:
 
    ```
-   <form class="pp-form" data-pp-events="change">
+   <form class="pp-form" data-pp-events="input submit">
 	 <input type="text" name="name" 
 	          placeholder="Your full name (first, middle and last)." />
 	 <input type="text" name="country" 
@@ -123,13 +134,12 @@ This form currently works like you (the developer) expect it to (by giving the f
    };
    ```
 
-   Note that `e` will have a `state` property that will be an object containing the parsed CGI variables of the form that was clicked.  For example, if the form being used is like the one above, with "Zoltan" filled in as the `name` and "Canada" filled in as the `country`, then the `state` object would be set to 
+   Note that `e` will have a `state` property that will be an object containing the parsed query string of the form that was clicked.  For example, if we filled the form above with "Zoltan" as the `name` and "Canada" as the `country`, then the `state` object would be set to 
 
    ```
    {
 	   name: "Zoltan K. Hawryluk",
-	   country: "Canada",
-	   submitButton: "Submit My Country"
+	   country: "Canada"
    }
    ```
 
@@ -162,6 +172,13 @@ Other options include:
 
 - If a `pp-link` link has a class `pp-merge`, then the data in the link will merge with the current value inside `window.history.state`. This will, of course, also be reflected in the URL.
 - Similarly if a `pp-form` has a class `pp-merge`, then the data in the form will merge with the current value inside `window.history.state`.
+
+## Examples
+
+* [hybrid mobile/desktop menu using both links and a `select` dropdown](http://useragentman.com/examples/progressive-pushstate/examples/example01.php)
+* [search as you type example](http://useragentman.com/examples/progressive-pushstate/examples/example02-form.php)
+* [table filtering example](http://useragentman.com/examples/progressive-pushstate/examples/example03-wcag.php)
+
 
 ## Dependencies
 
