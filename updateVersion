@@ -18,7 +18,7 @@ Error -- Usage:
 
    $0 <version-number>
 
-Where <version-number> is in the form vX.Y.Z (where X, Y, Z are postive integers).
+Where <version-number> is in the form X.Y.Z (where X, Y, Z are postive integers).
 
 " 1>&2
 	exit 1

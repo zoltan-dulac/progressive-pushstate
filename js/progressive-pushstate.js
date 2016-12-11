@@ -1,5 +1,5 @@
 /*********************************************************
- * Progressive Pushstate v0.7.13 - a library to facilitate
+ * Progressive Pushstate v0.7.16 - a library to facilitate
  * progressively enhanced pushstate/popstate enabled applications
  * with a server-side fallback.
  * 
@@ -10,7 +10,6 @@
  * 
  *	http://www.apache.org/licenses/LICENSE-2.0
  ********************************************************/
-
 
 var pp = new function () {
 	var me = this,
