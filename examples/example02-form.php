@@ -27,7 +27,7 @@
 			$country = isset($_GET['country']) ? $_GET['country'] : "";
 		?>
 		
-		<form class="pp-form" data-pp-events="keypress submit">
+		<form class="pp-form" data-pp-events="input submit">
 			<label for="country">Country: <input autofocus type="text" id="country" name="country" placeholder="Please enter in a country." autocomplete="off" value="<?php echo $country ?>"/></label>
 		</form>
 		

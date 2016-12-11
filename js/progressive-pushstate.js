@@ -164,7 +164,7 @@ var pp = new function () {
 			for (i=0; i<eventsLen; i++) {
 				var event = events[i];
 				
-				if (event.indexOf('key') === 0) {
+				if (event.indexOf('key') === 0 || event === 'input') {
 					document.addEventListener(events[i], me.formChangeEventDebounced);
 				} else {
 					document.addEventListener(events[i], formChangeEvent);
