@@ -20,6 +20,7 @@ var pp = new function () {
 		ampRe = /&/g,
 		ltRe = /</g,
 		gtRe = />/g,
+		uriSpaceRe = /\+/g,
 		
 		// Needed by unentify()
 		ampEntRe = /&amp;/g,
@@ -444,7 +445,7 @@ var pp = new function () {
 			var qsFrag = qsFrags[i],
 				splitFrag = qsFrag.split('='),
 				name = decodeURIComponent(splitFrag[0]),
-				rawValue = splitFrag[1],
+				rawValue = splitFrag[1].replace(uriSpaceRe, ' '),
 				oldValue = r[name];
 			
 
