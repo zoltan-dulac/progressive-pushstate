@@ -200,9 +200,10 @@ article a {
   bottom: 0;
   left: 0;
   transform-origin-x: 100%;
+  display: table;
 }
 .parallax__layer--base {
-  transform: translateZ(-0.5px);
+  transform: translate3d(0, 0, -0.5px);
 }
 .parallax__layer--back {
   transform: translateZ(-1px)  translateY(-10vw) scale(2);

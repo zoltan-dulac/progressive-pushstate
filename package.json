@@ -1,0 +1,25 @@
+{
+  "name": "progressive-pushstate",
+  "version": "0.7.17",
+  "description": "Progressively enhanced pushstate/popstate enabled applicationswith a server-side fallback.",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zoltan-dulac/progressive-pushstate.git"
+  },
+  "author": "Zoltan Hawryluk <zoltan.dulac@gmail.com> (http://useragentman.com)",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/zoltan-dulac/progressive-pushstate/issues"
+  },
+  "homepage": "https://github.com/zoltan-dulac/progressive-pushstate#readme",
+  "devDependencies": {
+    "eslint": "^4.8.0"
+  }
+}

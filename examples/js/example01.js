@@ -81,7 +81,7 @@ var example1 = new function () {
  	 * screenreaders will use to inform the user the page has changed.
  	 */
  	function readATNowShowingMessage(pageName) {
- 		$screenReaderAlert.html('Now viewing <strong>' + pageName + '<strong> page.');
+ 		$screenReaderAlert.html(`<p>Now viewing the "${pageName}" page. <span aria-hidden="true">${new Date().getTime()}</span></p>`);
  	}
  	
  	function hideTransitionEndEvent(e) {

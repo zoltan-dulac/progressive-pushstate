@@ -50,9 +50,8 @@
 			<div id="screen-reader-alert"
 				class="visually-hidden"
 				role="alert"
-				aria-relevant="all"
 				aria-live="assertive"
-			>Now displaying the <strong class="page-name"><?php echo $_GET["f"]; ?></strong> page.</div>
+			><p>Now displaying the <?php echo $_GET["f"]; ?> page.</p></div>
 			<article id="content">
 				<?php
 					if (isset($_GET["f"])) {
