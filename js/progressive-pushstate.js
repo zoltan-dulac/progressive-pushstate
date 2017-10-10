@@ -2,7 +2,7 @@
 /* global document window module */
 
 /*********************************************************
- * Progressive Pushstate v0.7.17 - a library to facilitate
+ * Progressive Pushstate v0.8.0 - a library to facilitate
  * progressively enhanced pushstate/popstate enabled applications
  * with a server-side fallback.
  * 
@@ -16,7 +16,7 @@
 var pp;
 
 // Only run if this is being run client side.
-if (window) {
+if (typeof window !== 'undefined') {
 	pp = new function () {
 		var me = this,
 			orientation = screen && screen.orientation || screen.mozOrientation || screen.msOrientation,
