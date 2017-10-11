@@ -19,7 +19,7 @@ var pp;
 if (typeof window !== 'undefined') {
 	pp = new function () {
 		var me = this,
-			orientation = (typeof screen !== 'undefined') && screen.orientation || screen.mozOrientation || screen.msOrientation,
+			orientation = screen && screen.orientation || screen.mozOrientation || screen.msOrientation,
 			spaceRe = /\s+/g,
 			
 			// Needed by entify()
@@ -32,7 +32,7 @@ if (typeof window !== 'undefined') {
 			ampEntRe = /&amp;/g,
 			ltEntRe = /&lt;/g,
 			gtEntRe = /&gt;/g,
-			htmlEl = (typeof document !== 'undefined') && document.getElementsByTagName('html')[0];
+			htmlEl = document.getElementsByTagName('html')[0];
 
 		
 		me.lastState = {};
