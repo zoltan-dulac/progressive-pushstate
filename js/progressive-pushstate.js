@@ -2,7 +2,7 @@
 /* global document window module */
 
 /*********************************************************
- * Progressive Pushstate v0.8.1 - a library to facilitate
+ * Progressive Pushstate v0.8.2 - a library to facilitate
  * progressively enhanced pushstate/popstate enabled applications
  * with a server-side fallback.
  * 
