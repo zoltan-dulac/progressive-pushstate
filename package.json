@@ -1,6 +1,6 @@
 {
   "name": "progressive-pushstate",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Progressively enhanced pushstate/popstate enabled applicationswith a server-side fallback.",
   "main": "index.js",
   "directories": {
