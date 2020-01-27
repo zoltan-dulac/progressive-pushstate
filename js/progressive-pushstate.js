@@ -16,7 +16,7 @@
 var pp;
 
 // Only run if this is being run client side.
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 	pp = new function () {
 		var me = this,
 			orientation = screen && screen.orientation || screen.mozOrientation || screen.msOrientation,

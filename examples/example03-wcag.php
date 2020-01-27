@@ -63,7 +63,7 @@
 
 	<body>
 		
-		<form class="pp-form" autocomplete="off" data-pp-events="submit">
+		<form class="pp-form" autocomplete="off" data-pp-events="submit change">
 			
 			<fieldset>
 				<legend>Filters</legend>
